@@ -185,19 +185,35 @@ class Tumbleweed(Obstacle):
     def __init__(self, image):
         self.type = random.randint(0, len(image) - 1)
         super().__init__(image, self.type)
-        self.rect.y = 325
+        self.rect.y = random.randint(0,325)
         self.index = 0
+        self.y_velocity = -8  # Initial vertical velocity
+        self.gravity = 0.5  # Gravity effect
 
     def draw(self, SCREEN):
         if self.index >= 20:
             self.index = 0
         SCREEN.blit(self.image[self.index // 5], self.rect)
-        if self.index % 5 == 0:
-            self.rect.y = 310 if self.rect.y == 325 else 325
         self.index += 1
-    
+
+    def update(self):
+        self.rect.x -= fg_game_speed
+
+        # Bounce effect
+        self.rect.y += self.y_velocity
+        self.y_velocity += self.gravity
+
+        # Check if the tumbleweed hits the ground and make it bounce
+        if self.rect.y >= 320:
+            self.rect.y = 320
+            self.y_velocity = -abs(self.y_velocity) * 0.8  # Reduce velocity for bouncing effect
+
+        if self.rect.x < -self.rect.width:
+            obstacles.pop()
+
     def is_clicked(self, pos):
         return self.rect.collidepoint(pos)
+
 
 def start_screen():
     SCREEN.fill((255, 255, 255))
