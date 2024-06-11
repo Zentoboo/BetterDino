@@ -6,7 +6,7 @@ pygame.init()
 
 # Constants
 
-SCREEN_WIDTH = 1000
+SCREEN_WIDTH = 1100
 SCREEN_HEIGHT = 600
 SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
@@ -232,7 +232,7 @@ def start_screen():
 
 
 def main():
-    global bg_game_speed, fg_game_speed, x_pos_bg, y_pos_bg, obstacles
+    global bg_game_speed, fg_game_speed, x_pos_bg, y_pos_bg, obstacles, points
     run = True  # game start
     clock = pygame.time.Clock()
     player = Dinosaur()
@@ -242,6 +242,16 @@ def main():
     x_pos_bg = 0
     y_pos_bg = 380
     obstacles = []
+    points = 0
+    font = pygame.font.Font('freesansbold.ttf',20)
+    
+    def score():
+        global points
+        points += 1
+        text = font.render("Points: " + str(points), True, (0,0,0))
+        textRect = text.get_rect()
+        textRect.center = (1000,40)
+        SCREEN.blit(text, textRect)
 
     start_screen()  # Display start screen
 
@@ -295,6 +305,8 @@ def main():
             cloud.draw(SCREEN)
             cloud.update()
 
+        score()
+        
         clock.tick(30)
         pygame.display.update()
 
