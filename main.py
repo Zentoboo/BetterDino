@@ -215,22 +215,6 @@ class Tumbleweed(Obstacle):
         return self.rect.collidepoint(pos)
 
 
-def start_screen():
-    SCREEN.fill((255, 255, 255))
-    text = FONT.render("Press any key to start", True, (0, 0, 0))
-    SCREEN.blit(text, (SCREEN_WIDTH // 2 - text.get_width() //
-                2, SCREEN_HEIGHT // 2 - text.get_height() // 2))
-    pygame.display.update()
-    waiting = True
-    while waiting:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                exit()
-            if event.type == pygame.KEYDOWN:
-                waiting = False
-
-
 def main():
     global bg_game_speed, fg_game_speed, x_pos_bg, y_pos_bg, obstacles, points
     run = True  # game start
@@ -244,6 +228,7 @@ def main():
     obstacles = []
     points = 0
     font = pygame.font.Font('freesansbold.ttf',20)
+    death_count = 0
     
     def score():
         global points
@@ -252,8 +237,6 @@ def main():
         textRect = text.get_rect()
         textRect.center = (1000,40)
         SCREEN.blit(text, textRect)
-
-    start_screen()  # Display start screen
 
     def background():
         global x_pos_bg, y_pos_bg
@@ -297,7 +280,10 @@ def main():
             obstacle.draw(SCREEN)
             obstacle.update()
             if player.dino_rect.colliderect(obstacle.rect):
-                pygame.draw.rect(SCREEN, (255, 0, 0), player.dino_rect, 2)
+                # pygame.draw.rect(SCREEN, (255, 0, 0), player.dino_rect, 2)
+                pygame.time.delay(2000)
+                death_count += 1
+                menu(death_count)
 
         background()
 
@@ -310,5 +296,28 @@ def main():
         clock.tick(30)
         pygame.display.update()
 
+def menu(death_count):
+    global points
+    run = True
+    while run:
+        SCREEN.fill((255, 255, 255))
+
+        text = FONT.render("Press any key to start", True, (0, 0, 0))
+        textRect = text.get_rect()
+        textRect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+        SCREEN.blit(text,textRect)
+        if death_count > 0:
+            score = FONT.render("Score: " + str(points), True, (0, 0, 0))
+            scoreRect = score.get_rect()
+            scoreRect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 50)
+            SCREEN.blit(score,scoreRect)
+        pygame.display.update()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            if event.type == pygame.KEYDOWN:
+                main()
+
 if __name__ == "__main__":
-    main()
+    menu(death_count=0)
