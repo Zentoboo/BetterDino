@@ -10,11 +10,17 @@ SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 600
 SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
-RUNNING = [pygame.image.load(os.path.join("Assets/Dino", "DinoRun1.png")),
-           pygame.image.load(os.path.join("Assets/Dino", "DinoRun2.png"))]
-JUMPING = pygame.image.load(os.path.join("Assets/Dino", "DinoJump.png"))
-DUCKING = [pygame.image.load(os.path.join("Assets/Dino", "DinoDuck1.png")),
-           pygame.image.load(os.path.join("Assets/Dino", "DinoDuck2.png"))]
+# RUNNING = [pygame.image.load(os.path.join("Assets/Dino", "DinoRun1.png")),
+#            pygame.image.load(os.path.join("Assets/Dino", "DinoRun2.png"))]
+# JUMPING = pygame.image.load(os.path.join("Assets/Dino", "DinoJump.png"))
+# DUCKING = [pygame.image.load(os.path.join("Assets/Dino", "DinoDuck1.png")),
+#            pygame.image.load(os.path.join("Assets/Dino", "DinoDuck2.png"))]
+
+RUNNING = [pygame.image.load(os.path.join("Assets/Dino", "DinoRun1nw.png")),
+           pygame.image.load(os.path.join("Assets/Dino", "DinoRun2nw.png"))]
+JUMPING = pygame.image.load(os.path.join("Assets/Dino", "DinoJumpnw.png"))
+DUCKING = [pygame.image.load(os.path.join("Assets/Dino", "DinoDuck1nw.png")),
+           pygame.image.load(os.path.join("Assets/Dino", "DinoDuck2nw.png"))]
 
 SMALL_CACTUS = [pygame.image.load(os.path.join("Assets/Cactus", "SmallCactus1.png")),
                 pygame.image.load(os.path.join("Assets/Cactus", "SmallCactus2.png")),
@@ -167,7 +173,7 @@ class Pterodactylus(Obstacle):
     def __init__(self,image):
         self.type = 0
         super().__init__(image, self.type)
-        self.rect.y = 250
+        self.rect.y = 270
         self.index = 0
     def draw(self,SCREEN):
         if self.index >= 9:
@@ -189,6 +195,9 @@ class Tumbleweed(Obstacle):
         if self.index % 5 == 0:
             self.rect.y = 310 if self.rect.y == 325 else 325
         self.index += 1
+    
+    def is_clicked(self, pos):
+        return self.rect.collidepoint(pos)
 
 def start_screen():
     SCREEN.fill((255, 255, 255))
@@ -234,6 +243,12 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                for obstacle in obstacles:
+                    if isinstance(obstacle, Tumbleweed) and obstacle.is_clicked(pos):
+                        obstacles.remove(obstacle)
+                        break
 
         SCREEN.fill((255, 255, 255))
         userInput = pygame.key.get_pressed()
