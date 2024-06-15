@@ -77,11 +77,11 @@ class Dinosaur:
         if self.step_index >= 10:
             self.step_index = 0
 
-        if userInput[pygame.K_UP] and not self.dinoJump:
+        if (userInput[pygame.K_UP] or userInput[pygame.K_w]) and not self.dinoJump:
             self.dinoDuck = False
             self.dinoRun = False
             self.dinoJump = True
-        elif userInput[pygame.K_DOWN] and not self.dinoJump:
+        elif (userInput[pygame.K_DOWN] or userInput[pygame.K_s]) and not self.dinoJump:
             self.dinoDuck = True
             self.dinoRun = False
             self.dinoJump = False
@@ -107,7 +107,7 @@ class Dinosaur:
     def jump(self, userInput):
         self.image = self.jump_img  # Set image to jump_img when jumping
         if self.dinoJump:
-            if not userInput[pygame.K_UP]:
+            if not userInput[pygame.K_UP] and not userInput[pygame.K_w]:
                 if self.jump_vel > 0:
                     self.jump_vel = 0  # Stop upward movement
             self.dino_rect.y -= self.jump_vel * 4
@@ -304,12 +304,34 @@ def menu(death_count):
 
         text = FONT.render("Press any key to start", True, (0, 0, 0))
         textRect = text.get_rect()
-        textRect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+        textRect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 30)
         SCREEN.blit(text,textRect)
+
+        if death_count == 0:
+            play_text = FONT.render("To play the game:", True, (0, 0, 0))
+            play_textRect = play_text.get_rect()
+            play_textRect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 10)
+            SCREEN.blit(play_text, play_textRect)
+
+            instructions1 = FONT.render("Use arrow up button or 'w' key to jump", True, (0, 0, 0))
+            instructions1Rect = instructions1.get_rect()
+            instructions1Rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 50)
+            SCREEN.blit(instructions1, instructions1Rect)
+
+            instructions2 = FONT.render("Use arrow down button or 's' key to duck", True, (0, 0, 0))
+            instructions2Rect = instructions2.get_rect()
+            instructions2Rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 90)
+            SCREEN.blit(instructions2, instructions2Rect)
+
+            good_luck = FONT.render("Good luck", True, (0, 0, 0))
+            good_luckRect = good_luck.get_rect()
+            good_luckRect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 130)
+            SCREEN.blit(good_luck, good_luckRect)
+
         if death_count > 0:
             score = FONT.render("Score: " + str(points), True, (0, 0, 0))
             scoreRect = score.get_rect()
-            scoreRect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 50)
+            scoreRect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 30)
             SCREEN.blit(score,scoreRect)
         pygame.display.update()
         for event in pygame.event.get():
