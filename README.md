@@ -4,9 +4,9 @@
 - [ ] Add ability to pause the game where player still able to see the screen, the screen is grey, pause icon.
 - [ ] Create a better menu/start screen.
 - [ ] Add a boss; boss is trigerred after player reaches certain condition (for example: reaches 2000 points).
-- [ ] Add the ability of using W and S equivalent to Up key and Down key respectively.
 - [ ] Create better hitbox for the sprites
 - [ ] Create user save file
+- [x] Add the ability of using W and S equivalent to Up key and Down key respectively.
 ## Reference:
 - https://youtube.com/playlist?list=PL30AETbxgR-fAbwiuU1vDl3owNUPUuVrz&si=_g38aaVXZGXDdXaI
 - https://www.youtube.com/watch?v=tJiKYMQJnYg

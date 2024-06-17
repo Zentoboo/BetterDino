@@ -89,6 +89,12 @@ class Dinosaur:
             self.dinoDuck = False
             self.dinoRun = True
             self.dinoJump = False
+        if (userInput[pygame.MOUSEBUTTONDOWN]):
+            pos = pygame.mouse.get_pos()
+            for obstacle in obstacles:
+                if isinstance(obstacle, Tumbleweed) and obstacle.is_clicked(pos):
+                    obstacles.remove(obstacle)
+                    break
 
     def duck(self):
         self.image = self.duck_img[self.step_index // 5]
