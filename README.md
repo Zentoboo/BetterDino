@@ -6,6 +6,7 @@
 - [ ] Add a boss; boss is trigerred after player reaches certain condition (for example: reaches 2000 points).
 - [ ] Create better hitbox for the sprites
 - [ ] Create user save file
+- [ ] Replace the dino's ability to destroy tumbleweed by clicking to shooting fireballs and when it hits it, the tumbleweed gets burnt
 - [x] Add the ability of using W and S equivalent to Up key and Down key respectively.
 ## Reference:
 - https://youtube.com/playlist?list=PL30AETbxgR-fAbwiuU1vDl3owNUPUuVrz&si=_g38aaVXZGXDdXaI

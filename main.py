@@ -5,6 +5,7 @@ import random
 pygame.init()
 
 # Constants
+LVL_LENGHT = 2000
 
 SCREEN_WIDTH = 1100
 SCREEN_HEIGHT = 600
@@ -237,8 +238,10 @@ def main():
     death_count = 0
     
     def score():
-        global points
+        global points, fg_game_speed
         points += 1
+        if points%LVL_LENGHT == 0:
+            fg_game_speed += 1
         text = font.render("Points: " + str(points), True, (0,0,0))
         textRect = text.get_rect()
         textRect.center = (1000,40)
