@@ -1,3 +1,4 @@
+import sys
 import pygame
 import os
 import random
@@ -6,16 +7,9 @@ pygame.init()
 
 # Constants
 LVL_LENGHT = 2000
-
 SCREEN_WIDTH = 1100
 SCREEN_HEIGHT = 600
 SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-
-# RUNNING = [pygame.image.load(os.path.join("Assets/Dino", "DinoRun1.png")),
-#            pygame.image.load(os.path.join("Assets/Dino", "DinoRun2.png"))]
-# JUMPING = pygame.image.load(os.path.join("Assets/Dino", "DinoJump.png"))
-# DUCKING = [pygame.image.load(os.path.join("Assets/Dino", "DinoDuck1.png")),
-#            pygame.image.load(os.path.join("Assets/Dino", "DinoDuck2.png"))]
 
 RUNNING = [pygame.image.load(os.path.join("Assets/Dino", "DinoRun1nw.png")),
            pygame.image.load(os.path.join("Assets/Dino", "DinoRun2nw.png"))]
@@ -43,6 +37,37 @@ CLOUD = pygame.image.load(os.path.join("Assets/Other", "Cloud.png"))
 DESERT_SAND = pygame.image.load(os.path.join("Assets/Other", "Desert.png"))
 
 FONT = pygame.font.Font(None, 36)
+
+BACKGROUND_ASSETS = [
+    pygame.image.load(os.path.join("Assets/Bird", "Bird1.png")),
+    pygame.image.load(os.path.join("Assets/Dino", "DinoJumpnw.png")),
+    pygame.image.load(os.path.join("Assets/Cactus", "LargeCactus3.png")),
+    pygame.image.load(os.path.join("Assets/Cactus", "SmallCactus1.png")),
+    pygame.image.load(os.path.join("Assets/Tumbleweed", "Tumbleweed2.png")),
+]
+
+PLAY_BUTTON = pygame.image.load(os.path.join("Assets/Menu Button", "button_play.png"))
+MANUAL_BUTTON = pygame.image.load(os.path.join("Assets/Menu Button", "button_manual.png"))
+QUIT_BUTTON = pygame.image.load(os.path.join("Assets/Menu Button", "button_quit.png"))
+
+
+class RotatingObject:
+    def __init__(self, image, pos):
+        self.image = image
+        self.original_image = image
+        self.rect = self.image.get_rect(center=pos)
+        self.angle = 0
+        self.speed = random.uniform(0.1, 0.5)  # random speed of rotation
+
+    def update(self):
+        self.angle += self.speed
+        if self.angle > 360:
+            self.angle -= 360
+        self.image = pygame.transform.rotate(self.original_image, self.angle)
+        self.rect = self.image.get_rect(center=self.rect.center)
+
+    def draw(self, SCREEN):
+        SCREEN.blit(self.image, self.rect.topleft)
 
 
 class Dinosaur:
@@ -221,30 +246,42 @@ class Tumbleweed(Obstacle):
     def is_clicked(self, pos):
         return self.rect.collidepoint(pos)
 
+# Initialize other variables
+bg_game_speed = 5
+fg_game_speed = 14
+x_pos_bg = 0
+y_pos_bg = 380
+points = 0
+death_count = 0
+clouds = [Cloud()]
+
+# Initialize rotating objects
+rotating_objects = [
+    RotatingObject(BACKGROUND_ASSETS[0], (150, 150)),
+    RotatingObject(BACKGROUND_ASSETS[1], (300, 400)),
+    RotatingObject(BACKGROUND_ASSETS[2], (SCREEN_WIDTH - 150, 150)),
+    RotatingObject(BACKGROUND_ASSETS[3], (SCREEN_WIDTH - 300, 400)),
+    RotatingObject(BACKGROUND_ASSETS[4], (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)),
+    RotatingObject(BACKGROUND_ASSETS[0], (200, 100)),
+    RotatingObject(BACKGROUND_ASSETS[1], (SCREEN_WIDTH - 200, 100)),
+    RotatingObject(BACKGROUND_ASSETS[4], (SCREEN_WIDTH // 2, 100))
+]
 
 def main():
-    global bg_game_speed, fg_game_speed, x_pos_bg, y_pos_bg, obstacles, points
-    run = True  # game start
+    global points, obstacles, x_pos_bg, y_pos_bg, fg_game_speed, bg_game_speed, death_count
+    run = True
     clock = pygame.time.Clock()
     player = Dinosaur()
-    clouds = [Cloud() for _ in range(3)]
-    fg_game_speed = 14
-    bg_game_speed = 3
-    x_pos_bg = 0
-    y_pos_bg = 380
     obstacles = []
-    points = 0
-    font = pygame.font.Font('freesansbold.ttf',20)
-    death_count = 0
-    
+
     def score():
         global points, fg_game_speed
         points += 1
-        if points%LVL_LENGHT == 0:
+        if points % 100 == 0:
             fg_game_speed += 1
-        text = font.render("Points: " + str(points), True, (0,0,0))
+        text = FONT.render(f"Points: {points}", True, (0, 0, 0))
         textRect = text.get_rect()
-        textRect.center = (1000,40)
+        textRect.center = (1000, 40)
         SCREEN.blit(text, textRect)
 
     def background():
@@ -261,14 +298,19 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                for obstacle in obstacles:
+                    if isinstance(obstacle, Tumbleweed) and obstacle.is_clicked(pos):
+                        obstacles.remove(obstacle)
+                        break
 
         SCREEN.fill((255, 255, 255))
-
-        # Update player/dinosaur passing keyboard and mouse input
         userInput = pygame.key.get_pressed()
         keyInput = pygame.mouse.get_pressed()
+
         player.draw(SCREEN)
-        player.update(userInput,keyInput)
+        player.update(userInput, keyInput)
 
         if len(obstacles) == 0:
             obstacle_type = random.randint(0, 3)
@@ -285,14 +327,13 @@ def main():
             obstacle.draw(SCREEN)
             obstacle.update()
             if player.dino_rect.colliderect(obstacle.rect):
-                # pygame.draw.rect(SCREEN, (255, 0, 0), player.dino_rect, 2)
                 pygame.time.delay(2000)
                 death_count += 1
                 menu(death_count)
 
         background()
 
-        for cloud in clouds:  # Update and draw each cloud
+        for cloud in clouds:
             cloud.draw(SCREEN)
             cloud.update()
 
@@ -305,46 +346,88 @@ def menu(death_count):
     global points
     run = True
     while run:
-        SCREEN.fill((255, 255, 255))
-
-        text = FONT.render("Press any key to start", True, (0, 0, 0))
-        textRect = text.get_rect()
-        textRect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 30)
-        SCREEN.blit(text,textRect)
-
-        if death_count == 0:
-            play_text = FONT.render("To play the game:", True, (0, 0, 0))
-            play_textRect = play_text.get_rect()
-            play_textRect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 10)
-            SCREEN.blit(play_text, play_textRect)
-
-            instructions1 = FONT.render("Use arrow up button or 'w' key to jump", True, (0, 0, 0))
-            instructions1Rect = instructions1.get_rect()
-            instructions1Rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 50)
-            SCREEN.blit(instructions1, instructions1Rect)
-
-            instructions2 = FONT.render("Use arrow down button or 's' key to duck", True, (0, 0, 0))
-            instructions2Rect = instructions2.get_rect()
-            instructions2Rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 90)
-            SCREEN.blit(instructions2, instructions2Rect)
-
-            good_luck = FONT.render("Good luck", True, (0, 0, 0))
-            good_luckRect = good_luck.get_rect()
-            good_luckRect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 130)
-            SCREEN.blit(good_luck, good_luckRect)
-
-        if death_count > 0:
-            score = FONT.render("Score: " + str(points), True, (0, 0, 0))
-            scoreRect = score.get_rect()
-            scoreRect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 30)
-            SCREEN.blit(score,scoreRect)
-        pygame.display.update()
+        draw_main_menu()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-                exit()
+                sys.exit()
             if event.type == pygame.KEYDOWN:
+                run = False
                 main()
+
+def manual():
+    global points
+    run = True
+    while run:
+        SCREEN.fill((255, 255, 255))
+        text1 = FONT.render("Manual Screen - Press any key to return", True, (0, 0, 0))
+        text1Rect = text1.get_rect()
+        text1Rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 50)
+        SCREEN.blit(text1, text1Rect)
+
+        text2 = FONT.render("Controls:", True, (0, 0, 0))
+        text2Rect = text2.get_rect()
+        text2Rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+        SCREEN.blit(text2, text2Rect)
+
+        text3 = FONT.render("W for Jumping", True, (0, 0, 0))
+        text3Rect = text3.get_rect()
+        text3Rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 30)
+        SCREEN.blit(text3, text3Rect)
+
+        text4 = FONT.render("S for Ducking", True, (0, 0, 0))
+        text4Rect = text4.get_rect()
+        text4Rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 60)
+        SCREEN.blit(text4, text4Rect)
+
+        pygame.display.update()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                run = False
+                menu(death_count)
+
+def draw_main_menu():
+    SCREEN.fill((255, 255, 255))
+    mx, my = pygame.mouse.get_pos()
+
+    # Centered positions for buttons with increased spacing
+    button_width = PLAY_BUTTON.get_width()
+    button_height = PLAY_BUTTON.get_height()
+    play_button_rect = PLAY_BUTTON.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 90))
+    manual_button_rect = MANUAL_BUTTON.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
+    quit_button_rect = QUIT_BUTTON.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 90))
+
+    # Draw rotating objects in the background
+    for obj in rotating_objects:
+        obj.update()
+        obj.draw(SCREEN)
+
+    SCREEN.blit(PLAY_BUTTON, play_button_rect.topleft)
+    SCREEN.blit(MANUAL_BUTTON, manual_button_rect.topleft)
+    SCREEN.blit(QUIT_BUTTON, quit_button_rect.topleft)
+
+    click = False
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            click = True
+
+    if play_button_rect.collidepoint((mx, my)) and click:
+        main()
+    if manual_button_rect.collidepoint((mx, my)) and click:
+        manual()
+    if quit_button_rect.collidepoint((mx, my)) and click:
+        pygame.quit()
+        sys.exit()
+
+    pygame.display.update()
 
 if __name__ == "__main__":
     menu(death_count=0)
