@@ -67,7 +67,8 @@ class Dinosaur:
         self.dino_rect.x = self.X_POS
         self.dino_rect.y = self.Y_POS
 
-    def update(self, userInput):
+    def update(self, userInput,keyInput):
+        global obstacles
         if self.dinoDuck:
             self.duck()
         if self.dinoRun:
@@ -90,7 +91,7 @@ class Dinosaur:
             self.dinoDuck = False
             self.dinoRun = True
             self.dinoJump = False
-        if (userInput[pygame.MOUSEBUTTONDOWN]):
+        if keyInput[0]:
             pos = pygame.mouse.get_pos()
             for obstacle in obstacles:
                 if isinstance(obstacle, Tumbleweed) and obstacle.is_clicked(pos):
@@ -160,7 +161,6 @@ class Obstacle: # parent class for obstacles
     
     def draw(self, SCREEN):
         SCREEN.blit(self.image[self.type], self.rect)
-
 
 class SmallCactus(Obstacle):
     def __init__(self,image):
@@ -261,18 +261,14 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                pos = pygame.mouse.get_pos()
-                for obstacle in obstacles:
-                    if isinstance(obstacle, Tumbleweed) and obstacle.is_clicked(pos):
-                        obstacles.remove(obstacle)
-                        break
 
         SCREEN.fill((255, 255, 255))
-        userInput = pygame.key.get_pressed()
 
+        # Update player/dinosaur passing keyboard and mouse input
+        userInput = pygame.key.get_pressed()
+        keyInput = pygame.mouse.get_pressed()
         player.draw(SCREEN)
-        player.update(userInput)
+        player.update(userInput,keyInput)
 
         if len(obstacles) == 0:
             obstacle_type = random.randint(0, 3)
