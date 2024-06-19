@@ -5,8 +5,9 @@ import random
 
 pygame.init()
 
+death_count = 0
 # Constants
-LVL_LENGHT = 2000
+LVL_LENGHT = 50
 SCREEN_WIDTH = 1100
 SCREEN_HEIGHT = 600
 SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -246,14 +247,6 @@ class Tumbleweed(Obstacle):
     def is_clicked(self, pos):
         return self.rect.collidepoint(pos)
 
-# Initialize other variables
-bg_game_speed = 5
-fg_game_speed = 14
-x_pos_bg = 0
-y_pos_bg = 380
-points = 0
-death_count = 0
-clouds = [Cloud()]
 
 # Initialize rotating objects
 rotating_objects = [
@@ -273,13 +266,19 @@ def main():
     clock = pygame.time.Clock()
     player = Dinosaur()
     obstacles = []
+    bg_game_speed = 5
+    fg_game_speed = 14
+    x_pos_bg = 0
+    y_pos_bg = 380
+    points = 0
+    clouds = [Cloud()]
 
     def score():
         global points, fg_game_speed
         points += 1
-        if points % 100 == 0:
+        if points % LVL_LENGHT == 0:
             fg_game_speed += 1
-        text = FONT.render(f"Points: {points}", True, (0, 0, 0))
+        text = FONT.render("Points: " + str(points), True, (0, 0, 0))
         textRect = text.get_rect()
         textRect.center = (1000, 40)
         SCREEN.blit(text, textRect)
@@ -329,7 +328,7 @@ def main():
             if player.dino_rect.colliderect(obstacle.rect):
                 pygame.time.delay(2000)
                 death_count += 1
-                menu(death_count)
+                menu()
 
         background()
 
@@ -342,7 +341,7 @@ def main():
         clock.tick(30)
         pygame.display.update()
 
-def menu(death_count):
+def menu():
     global points
     run = True
     while run:
@@ -388,11 +387,18 @@ def manual():
                 sys.exit()
             if event.type == pygame.KEYDOWN:
                 run = False
-                menu(death_count)
+                menu()
 
 def draw_main_menu():
+    global death_count
     SCREEN.fill((255, 255, 255))
     mx, my = pygame.mouse.get_pos()
+    
+    if death_count > 0:
+            score = FONT.render("Score: " + str(points), True, (0, 0, 0))
+            scoreRect = score.get_rect()
+            scoreRect.center = (SCREEN_WIDTH // 2 - 200, SCREEN_HEIGHT // 2 + 30)
+            SCREEN.blit(score,scoreRect)
 
     # Centered positions for buttons with increased spacing
     button_width = PLAY_BUTTON.get_width()
@@ -430,4 +436,4 @@ def draw_main_menu():
     pygame.display.update()
 
 if __name__ == "__main__":
-    menu(death_count=0)
+    menu()
