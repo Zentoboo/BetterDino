@@ -6,6 +6,7 @@ import random
 pygame.init()
 
 death_count = 0
+high_score = 0
 # Constants
 LVL_LENGHT = 50
 SCREEN_WIDTH = 1100
@@ -391,6 +392,7 @@ def manual():
 
 def draw_main_menu():
     global death_count
+    global high_score
     SCREEN.fill((255, 255, 255))
     mx, my = pygame.mouse.get_pos()
     
@@ -399,6 +401,13 @@ def draw_main_menu():
             scoreRect = score.get_rect()
             scoreRect.center = (SCREEN_WIDTH // 2 - 200, SCREEN_HEIGHT // 2 + 30)
             SCREEN.blit(score,scoreRect)
+            if points>high_score:
+                high_score=points
+            high_score_text=FONT.render("High Score: " + str(high_score), True, (0,0,0))
+            high_score_rect=high_score_text.get_rect()
+            high_score_rect.center = (SCREEN_WIDTH // 2 + 200, SCREEN_HEIGHT // 2 + 30)
+            SCREEN.blit(high_score_text,high_score_rect)
+
 
     # Centered positions for buttons with increased spacing
     button_width = PLAY_BUTTON.get_width()
