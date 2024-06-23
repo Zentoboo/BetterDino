@@ -38,6 +38,10 @@ CLOUD = pygame.image.load(os.path.join("Assets/Other", "Cloud.png"))
 
 DESERT_SAND = pygame.image.load(os.path.join("Assets/Other", "Desert.png"))
 
+# Add heart pictures
+HEART_FULL = pygame.image.load(os.path.join("Assets/Heart", "Heart1.png"))
+HEART_EMPTY = pygame.image.load(os.path.join("Assets/Heart", "Heart2.png"))
+
 FONT = pygame.font.Font(None, 36)
 
 BACKGROUND_ASSETS = [
@@ -93,6 +97,13 @@ class Dinosaur:
         self.dino_rect = self.image.get_rect()
         self.dino_rect.x = self.X_POS
         self.dino_rect.y = self.Y_POS
+        self.life_count = 3  # Initial life value is 3
+        self.is_invincible = False  # Invincible state
+        self.invincible_start_time = 0  # Invincible start time
+
+        # Shrink heart pictures
+        self.heart_full = pygame.transform.scale(HEART_FULL, (30, 30))
+        self.heart_empty = pygame.transform.scale(HEART_EMPTY, (30, 30))
 
     def update(self, userInput,keyInput):
         global obstacles
@@ -125,6 +136,10 @@ class Dinosaur:
                     obstacles.remove(obstacle)
                     break
 
+        # Set the invincibility time to 2 seconds
+        if self.is_invincible and (pygame.time.get_ticks() - self.invincible_start_time) > 2000:
+            self.is_invincible = False
+
     def duck(self):
         self.image = self.duck_img[self.step_index // 5]
         self.dino_rect = self.image.get_rect()
@@ -154,7 +169,29 @@ class Dinosaur:
             self.jump_vel = self.JUMP_VEL
 
     def draw(self, SCREEN):
-        SCREEN.blit(self.image, (self.dino_rect.x, self.dino_rect.y))
+        # Display flashing effect
+        if self.is_invincible:
+            if (pygame.time.get_ticks() // 250) % 2 == 0:
+                SCREEN.blit(self.image, (self.dino_rect.x, self.dino_rect.y))
+        else:
+            SCREEN.blit(self.image, (self.dino_rect.x, self.dino_rect.y))
+
+    def handle_collision(self):
+        if not self.is_invincible:
+            self.life_count -= 1  # Decrease in life value
+            self.is_invincible = True  # Enable invincibility
+            self.invincible_start_time = pygame.time.get_ticks()  # Record invincibility start time
+            if self.life_count == 0:
+                return True
+        return False
+
+    def draw_hearts(self, SCREEN):
+        # Display hearts pictures
+        for i in range(3):
+            if i < self.life_count:
+                SCREEN.blit(self.heart_full, (30 + i * 40, 30))
+            else:
+                SCREEN.blit(self.heart_empty, (30 + i * 40, 30))
 
 
 class Cloud:
@@ -311,6 +348,7 @@ def main():
 
         player.draw(SCREEN)
         player.update(userInput, keyInput)
+        player.draw_hearts(SCREEN)  # Display hearts pictures
 
         if len(obstacles) == 0:
             obstacle_type = random.randint(0, 3)
@@ -327,9 +365,10 @@ def main():
             obstacle.draw(SCREEN)
             obstacle.update()
             if player.dino_rect.colliderect(obstacle.rect):
-                pygame.time.delay(2000)
-                death_count += 1
-                menu()
+                if player.handle_collision():
+                    pygame.time.delay(2000)
+                    death_count += 1
+                    menu()
 
         background()
 
@@ -338,7 +377,7 @@ def main():
             cloud.update()
 
         score()
-        
+
         clock.tick(30)
         pygame.display.update()
 
