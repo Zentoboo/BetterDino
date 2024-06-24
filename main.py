@@ -34,6 +34,11 @@ TUMBLEWEED = [pygame.image.load(os.path.join("Assets/Tumbleweed", "Tumbleweed1.p
               pygame.image.load(os.path.join("Assets/Tumbleweed", "Tumbleweed3.png")),
               pygame.image.load(os.path.join("Assets/Tumbleweed", "Tumbleweed4.png"))]
 
+PROJECTILE = [pygame.image.load(os.path.join("Assets/Projectile", "Projectile1.png")),
+              pygame.image.load(os.path.join("Assets/Projectile", "Projectile2.png")),
+              pygame.image.load(os.path.join("Assets/Projectile", "Projectile3.png")),
+              pygame.image.load(os.path.join("Assets/Projectile", "Projectile4.png"))]
+
 CLOUD = pygame.image.load(os.path.join("Assets/Other", "Cloud.png"))
 
 DESERT_SAND = pygame.image.load(os.path.join("Assets/Other", "Desert.png"))
