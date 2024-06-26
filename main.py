@@ -6,6 +6,7 @@ import random
 pygame.init()
 
 death_count = 0
+high_score = 0
 # Constants
 LVL_LENGHT = 50
 SCREEN_WIDTH = 1100
@@ -33,9 +34,18 @@ TUMBLEWEED = [pygame.image.load(os.path.join("Assets/Tumbleweed", "Tumbleweed1.p
               pygame.image.load(os.path.join("Assets/Tumbleweed", "Tumbleweed3.png")),
               pygame.image.load(os.path.join("Assets/Tumbleweed", "Tumbleweed4.png"))]
 
+PROJECTILE = [pygame.image.load(os.path.join("Assets/Projectile", "Projectile1.png")),
+              pygame.image.load(os.path.join("Assets/Projectile", "Projectile2.png")),
+              pygame.image.load(os.path.join("Assets/Projectile", "Projectile3.png")),
+              pygame.image.load(os.path.join("Assets/Projectile", "Projectile4.png"))]
+
 CLOUD = pygame.image.load(os.path.join("Assets/Other", "Cloud.png"))
 
 DESERT_SAND = pygame.image.load(os.path.join("Assets/Other", "Desert.png"))
+
+# Add heart pictures
+HEART_FULL = pygame.image.load(os.path.join("Assets/Heart", "Heart1.png"))
+HEART_EMPTY = pygame.image.load(os.path.join("Assets/Heart", "Heart2.png"))
 
 FONT = pygame.font.Font(None, 36)
 
@@ -92,6 +102,13 @@ class Dinosaur:
         self.dino_rect = self.image.get_rect()
         self.dino_rect.x = self.X_POS
         self.dino_rect.y = self.Y_POS
+        self.life_count = 3  # Initial life value is 3
+        self.is_invincible = False  # Invincible state
+        self.invincible_start_time = 0  # Invincible start time
+
+        # Shrink heart pictures
+        self.heart_full = pygame.transform.scale(HEART_FULL, (30, 30))
+        self.heart_empty = pygame.transform.scale(HEART_EMPTY, (30, 30))
 
     def update(self, userInput,keyInput):
         global obstacles
@@ -124,6 +141,10 @@ class Dinosaur:
                     obstacles.remove(obstacle)
                     break
 
+        # Set the invincibility time to 2 seconds
+        if self.is_invincible and (pygame.time.get_ticks() - self.invincible_start_time) > 2000:
+            self.is_invincible = False
+
     def duck(self):
         self.image = self.duck_img[self.step_index // 5]
         self.dino_rect = self.image.get_rect()
@@ -153,8 +174,55 @@ class Dinosaur:
             self.jump_vel = self.JUMP_VEL
 
     def draw(self, SCREEN):
-        SCREEN.blit(self.image, (self.dino_rect.x, self.dino_rect.y))
+        # Display flashing effect only during the first two collisions
+        if self.life_count >= 1 and self.is_invincible:
+            if (pygame.time.get_ticks() // 250) % 2 == 0:
+                SCREEN.blit(self.image, (self.dino_rect.x, self.dino_rect.y))
+        else:
+            SCREEN.blit(self.image, (self.dino_rect.x, self.dino_rect.y))
 
+    def handle_collision(self):
+        if not self.is_invincible:
+            if self.life_count > 1:
+                pygame.time.delay(300)
+            self.life_count -= 1  # Decrease in life value
+            self.is_invincible = True  # Enable invincibility
+            self.invincible_start_time = pygame.time.get_ticks()  # Record invincibility start time
+            if self.life_count == 0:
+                return True
+        return False
+
+    def draw_hearts(self, SCREEN):
+        # Display hearts pictures
+        for i in range(3):
+            if i < self.life_count:
+                SCREEN.blit(self.heart_full, (30 + i * 40, 30))
+            else:
+                SCREEN.blit(self.heart_empty, (30 + i * 40, 30))
+
+    def start_death_animation(self):
+        self.is_jumping = False
+        self.jump_velocity = 15
+        self.is_dead_animation = True
+        self.y_velocity = 15  # Initialise vertical velocity
+        self.death_animation_done = False  # Initialising the death animation completion flag
+
+    def update_death_animation(self):
+        if self.is_dead_animation:
+            self.dino_rect.y -= self.jump_velocity
+            self.jump_velocity -= 1  # Simulation of gravitational acceleration
+
+            if self.dino_rect.y >= 325:
+                self.dino_rect.y = 325
+                self.is_dead_animation = False
+                self.y_velocity = 15  # Reset vertical speed for drop animation
+
+        elif self.dino_rect.y < SCREEN_HEIGHT:
+            self.dino_rect.y += self.y_velocity
+            self.y_velocity += 1  # Accelerated descent
+
+            if self.dino_rect.y >= SCREEN_HEIGHT:
+                self.death_animation_done = True  # Animation complete.
 
 class Cloud:
     def __init__(self):
@@ -272,12 +340,14 @@ def main():
     y_pos_bg = 380
     points = 0
     clouds = [Cloud()]
+    is_dead_animation = False  # Add a global variable for the death animation state
 
     def score():
         global points, fg_game_speed
-        points += 1
-        if points % LVL_LENGHT == 0:
-            fg_game_speed += 1
+        if not is_dead_animation:  # Pause score updates
+            points += 1
+            if points % LVL_LENGHT == 0:
+                fg_game_speed += 1
         text = FONT.render("Points: " + str(points), True, (0, 0, 0))
         textRect = text.get_rect()
         textRect.center = (1000, 40)
@@ -285,13 +355,17 @@ def main():
 
     def background():
         global x_pos_bg, y_pos_bg
-        image_width = DESERT_SAND.get_width()
-        SCREEN.blit(DESERT_SAND, (x_pos_bg, y_pos_bg))
-        SCREEN.blit(DESERT_SAND, (image_width + x_pos_bg, y_pos_bg))
-        if x_pos_bg <= -image_width:
+        if not is_dead_animation:  # Pause background movement
+            image_width = DESERT_SAND.get_width()
+            SCREEN.blit(DESERT_SAND, (x_pos_bg, y_pos_bg))
             SCREEN.blit(DESERT_SAND, (image_width + x_pos_bg, y_pos_bg))
-            x_pos_bg = 0
-        x_pos_bg -= fg_game_speed
+            if x_pos_bg <= -image_width:
+                SCREEN.blit(DESERT_SAND, (image_width + x_pos_bg, y_pos_bg))
+                x_pos_bg = 0
+            x_pos_bg -= fg_game_speed
+        else:
+            SCREEN.blit(DESERT_SAND, (x_pos_bg, y_pos_bg))
+            SCREEN.blit(DESERT_SAND, (DESERT_SAND.get_width() + x_pos_bg, y_pos_bg))
 
     while run:
         for event in pygame.event.get():
@@ -308,10 +382,15 @@ def main():
         userInput = pygame.key.get_pressed()
         keyInput = pygame.mouse.get_pressed()
 
-        player.draw(SCREEN)
-        player.update(userInput, keyInput)
+        if not is_dead_animation:
+            player.update(userInput, keyInput)
+        else:
+            player.update_death_animation()
 
-        if len(obstacles) == 0:
+        player.draw(SCREEN)
+        player.draw_hearts(SCREEN)  # Display hearts pictures
+
+        if len(obstacles) == 0 and not is_dead_animation:
             obstacle_type = random.randint(0, 3)
             if obstacle_type == 0:
                 obstacles.append(SmallCactus(SMALL_CACTUS))
@@ -324,20 +403,29 @@ def main():
 
         for obstacle in obstacles:
             obstacle.draw(SCREEN)
-            obstacle.update()
+            if not is_dead_animation:  # Pause obstacle updates
+                obstacle.update()
             if player.dino_rect.colliderect(obstacle.rect):
-                pygame.time.delay(2000)
-                death_count += 1
-                menu()
+                if player.handle_collision():
+                    is_dead_animation = True
+                    player.start_death_animation()
 
         background()
 
         for cloud in clouds:
             cloud.draw(SCREEN)
-            cloud.update()
+            if not is_dead_animation:  # Pause cloud updates
+                cloud.update()
 
         score()
-        
+
+        # Detecting the completion of the death animation
+        if is_dead_animation and player.death_animation_done:
+            pygame.time.delay(1000)
+            death_count += 1
+            menu()
+            run = False
+
         clock.tick(30)
         pygame.display.update()
 
@@ -391,6 +479,7 @@ def manual():
 
 def draw_main_menu():
     global death_count
+    global high_score
     SCREEN.fill((255, 255, 255))
     mx, my = pygame.mouse.get_pos()
     
@@ -399,6 +488,13 @@ def draw_main_menu():
             scoreRect = score.get_rect()
             scoreRect.center = (SCREEN_WIDTH // 2 - 200, SCREEN_HEIGHT // 2 + 30)
             SCREEN.blit(score,scoreRect)
+            if points>high_score:
+                high_score=points
+            high_score_text=FONT.render("High Score: " + str(high_score), True, (0,0,0))
+            high_score_rect=high_score_text.get_rect()
+            high_score_rect.center = (SCREEN_WIDTH // 2 + 200, SCREEN_HEIGHT // 2 + 30)
+            SCREEN.blit(high_score_text,high_score_rect)
+
 
     # Centered positions for buttons with increased spacing
     button_width = PLAY_BUTTON.get_width()
