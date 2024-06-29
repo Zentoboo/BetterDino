@@ -7,6 +7,7 @@ pygame.init()
 
 death_count = 0
 high_score = 0
+
 # Constants
 LVL_LENGHT = 50
 SCREEN_WIDTH = 1100
@@ -43,43 +44,12 @@ CLOUD = pygame.image.load(os.path.join("Assets/Other", "Cloud.png"))
 
 DESERT_SAND = pygame.image.load(os.path.join("Assets/Other", "Desert.png"))
 
-# Add heart pictures
+FONT_SIZE = 25
+FONT_PATH = "Assets/Font/PixelifySans-Regular.ttf"
+FONT = pygame.font.Font(FONT_PATH, FONT_SIZE)
+
 HEART_FULL = pygame.image.load(os.path.join("Assets/Heart", "Heart1.png"))
 HEART_EMPTY = pygame.image.load(os.path.join("Assets/Heart", "Heart2.png"))
-
-FONT = pygame.font.Font(None, 36)
-
-BACKGROUND_ASSETS = [
-    pygame.image.load(os.path.join("Assets/Bird", "Bird1.png")),
-    pygame.image.load(os.path.join("Assets/Dino", "DinoJumpnw.png")),
-    pygame.image.load(os.path.join("Assets/Cactus", "LargeCactus3.png")),
-    pygame.image.load(os.path.join("Assets/Cactus", "SmallCactus1.png")),
-    pygame.image.load(os.path.join("Assets/Tumbleweed", "Tumbleweed2.png")),
-]
-
-PLAY_BUTTON = pygame.image.load(os.path.join("Assets/Menu Button", "button_play.png"))
-MANUAL_BUTTON = pygame.image.load(os.path.join("Assets/Menu Button", "button_manual.png"))
-QUIT_BUTTON = pygame.image.load(os.path.join("Assets/Menu Button", "button_quit.png"))
-
-
-class RotatingObject:
-    def __init__(self, image, pos):
-        self.image = image
-        self.original_image = image
-        self.rect = self.image.get_rect(center=pos)
-        self.angle = 0
-        self.speed = random.uniform(0.1, 0.5)  # random speed of rotation
-
-    def update(self):
-        self.angle += self.speed
-        if self.angle > 360:
-            self.angle -= 360
-        self.image = pygame.transform.rotate(self.original_image, self.angle)
-        self.rect = self.image.get_rect(center=self.rect.center)
-
-    def draw(self, SCREEN):
-        SCREEN.blit(self.image, self.rect.topleft)
-
 
 class Dinosaur:
     X_POS = 80
@@ -110,7 +80,7 @@ class Dinosaur:
         self.heart_full = pygame.transform.scale(HEART_FULL, (30, 30))
         self.heart_empty = pygame.transform.scale(HEART_EMPTY, (30, 30))
 
-    def update(self, userInput,keyInput):
+    def update(self, userInput, keyInput):
         global obstacles
         if self.dinoDuck:
             self.duck()
@@ -134,6 +104,7 @@ class Dinosaur:
             self.dinoDuck = False
             self.dinoRun = True
             self.dinoJump = False
+
         if keyInput[0]:
             pos = pygame.mouse.get_pos()
             for obstacle in obstacles:
@@ -241,52 +212,55 @@ class Cloud:
         SCREEN.blit(self.image, (self.x, self.y))
 
 
-class Obstacle: # parent class for obstacles
+class Obstacle:  # parent class for obstacles
     def __init__(self, image, type):
         self.image = image
         self.type = type
         self.rect = self.image[self.type].get_rect()
         self.rect.x = SCREEN_WIDTH
-    
+
     def update(self):
         self.rect.x -= fg_game_speed
         if self.rect.x < -self.rect.width:
             obstacles.pop()
-    
+
     def draw(self, SCREEN):
         SCREEN.blit(self.image[self.type], self.rect)
 
+
 class SmallCactus(Obstacle):
-    def __init__(self,image):
-        self.type = random.randint(0,len(image) - 1)
+    def __init__(self, image):
+        self.type = random.randint(0, len(image) - 1)
         super().__init__(image, self.type)
         self.rect.y = 325
 
-        
+
 class LargeCactus(Obstacle):
-    def __init__(self,image):
-        self.type = random.randint(0,len(image) - 1)
+    def __init__(self, image):
+        self.type = random.randint(0, len(image) - 1)
         super().__init__(image, self.type)
         self.rect.y = 300
 
 
 class Pterodactylus(Obstacle):
-    def __init__(self,image):
+    def __init__(self, image):
         self.type = 0
         super().__init__(image, self.type)
         self.rect.y = 270
         self.index = 0
-    def draw(self,SCREEN):
+
+    def draw(self, SCREEN):
         if self.index >= 9:
             self.index = 0
-        SCREEN.blit(self.image[self.index//5], self.rect)
+        SCREEN.blit(self.image[self.index // 5], self.rect)
         self.index += 1
+
 
 class Tumbleweed(Obstacle):
     def __init__(self, image):
         self.type = random.randint(0, len(image) - 1)
         super().__init__(image, self.type)
-        self.rect.y = random.randint(0,325)
+        self.rect.y = random.randint(0, 325)
         self.index = 0
         self.y_velocity = -8  # Initial vertical velocity
         self.gravity = 0.5  # Gravity effect
@@ -315,21 +289,50 @@ class Tumbleweed(Obstacle):
     def is_clicked(self, pos):
         return self.rect.collidepoint(pos)
 
+def reset_game():
+    global obstacles, x_pos_bg, y_pos_bg, fg_game_speed, bg_game_speed, points, clouds, death_count, player, is_dead_animation
 
-# Initialize rotating objects
-rotating_objects = [
-    RotatingObject(BACKGROUND_ASSETS[0], (150, 150)),
-    RotatingObject(BACKGROUND_ASSETS[1], (300, 400)),
-    RotatingObject(BACKGROUND_ASSETS[2], (SCREEN_WIDTH - 150, 150)),
-    RotatingObject(BACKGROUND_ASSETS[3], (SCREEN_WIDTH - 300, 400)),
-    RotatingObject(BACKGROUND_ASSETS[4], (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)),
-    RotatingObject(BACKGROUND_ASSETS[0], (200, 100)),
-    RotatingObject(BACKGROUND_ASSETS[1], (SCREEN_WIDTH - 200, 100)),
-    RotatingObject(BACKGROUND_ASSETS[4], (SCREEN_WIDTH // 2, 100))
-]
+    player = Dinosaur()
+    obstacles = []
+    bg_game_speed = 5
+    fg_game_speed = 14
+    x_pos_bg = 0
+    y_pos_bg = 380
+    points = 0
+    clouds = [Cloud()]
+    death_count = 0
+    is_dead_animation = False
+
+
+def menu():
+    global SCREEN, FONT, high_score
+
+    # Display starting text
+    menu_text = FONT.render("\"Press any key to begin\"", True, (0, 0, 0))
+    text_rect = menu_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
+    SCREEN.fill((255, 255, 255))
+    SCREEN.blit(menu_text, text_rect)
+
+    # Display high score
+    high_score_text = FONT.render(f"High Score: {high_score}", True, (0, 0, 0))
+    high_score_rect = high_score_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 50))
+    SCREEN.blit(high_score_text, high_score_rect)
+
+    pygame.display.flip()
+
+    waiting = True
+    while waiting:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return False
+            if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
+                reset_game()
+                waiting = False
+    return True
 
 def main():
-    global points, obstacles, x_pos_bg, y_pos_bg, fg_game_speed, bg_game_speed, death_count
+    global points, obstacles, x_pos_bg, y_pos_bg, fg_game_speed, bg_game_speed, death_count, high_score
     run = True
     clock = pygame.time.Clock()
     player = Dinosaur()
@@ -341,6 +344,8 @@ def main():
     points = 0
     clouds = [Cloud()]
     is_dead_animation = False  # Add a global variable for the death animation state
+
+    menu()  # Display menu before starting the game loop
 
     def score():
         global points, fg_game_speed
@@ -423,113 +428,21 @@ def main():
         if is_dead_animation and player.death_animation_done:
             pygame.time.delay(1000)
             death_count += 1
-            menu()
+
+            # Update high score if points exceed current high score
+            if points > high_score:
+                high_score = points
+
+            # Reset points for new game
+            points = 0
             run = False
+            
 
         clock.tick(30)
         pygame.display.update()
 
-def menu():
-    global points
-    run = True
-    while run:
-        draw_main_menu()
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            if event.type == pygame.KEYDOWN:
-                run = False
-                main()
-
-def manual():
-    global points
-    run = True
-    while run:
-        SCREEN.fill((255, 255, 255))
-        text1 = FONT.render("Manual Screen - Press any key to return", True, (0, 0, 0))
-        text1Rect = text1.get_rect()
-        text1Rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 50)
-        SCREEN.blit(text1, text1Rect)
-
-        text2 = FONT.render("Controls:", True, (0, 0, 0))
-        text2Rect = text2.get_rect()
-        text2Rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
-        SCREEN.blit(text2, text2Rect)
-
-        text3 = FONT.render("W for Jumping", True, (0, 0, 0))
-        text3Rect = text3.get_rect()
-        text3Rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 30)
-        SCREEN.blit(text3, text3Rect)
-
-        text4 = FONT.render("S for Ducking", True, (0, 0, 0))
-        text4Rect = text4.get_rect()
-        text4Rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 60)
-        SCREEN.blit(text4, text4Rect)
-
-        pygame.display.update()
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            if event.type == pygame.KEYDOWN:
-                run = False
-                menu()
-
-def draw_main_menu():
-    global death_count
-    global high_score
-    SCREEN.fill((255, 255, 255))
-    mx, my = pygame.mouse.get_pos()
-    
-    if death_count > 0:
-            score = FONT.render("Score: " + str(points), True, (0, 0, 0))
-            scoreRect = score.get_rect()
-            scoreRect.center = (SCREEN_WIDTH // 2 - 200, SCREEN_HEIGHT // 2 + 30)
-            SCREEN.blit(score,scoreRect)
-            if points>high_score:
-                high_score=points
-            high_score_text=FONT.render("High Score: " + str(high_score), True, (0,0,0))
-            high_score_rect=high_score_text.get_rect()
-            high_score_rect.center = (SCREEN_WIDTH // 2 + 200, SCREEN_HEIGHT // 2 + 30)
-            SCREEN.blit(high_score_text,high_score_rect)
-
-
-    # Centered positions for buttons with increased spacing
-    button_width = PLAY_BUTTON.get_width()
-    button_height = PLAY_BUTTON.get_height()
-    play_button_rect = PLAY_BUTTON.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 90))
-    manual_button_rect = MANUAL_BUTTON.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
-    quit_button_rect = QUIT_BUTTON.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 90))
-
-    # Draw rotating objects in the background
-    for obj in rotating_objects:
-        obj.update()
-        obj.draw(SCREEN)
-
-    SCREEN.blit(PLAY_BUTTON, play_button_rect.topleft)
-    SCREEN.blit(MANUAL_BUTTON, manual_button_rect.topleft)
-    SCREEN.blit(QUIT_BUTTON, quit_button_rect.topleft)
-
-    click = False
-
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            click = True
-
-    if play_button_rect.collidepoint((mx, my)) and click:
-        main()
-    if manual_button_rect.collidepoint((mx, my)) and click:
-        manual()
-    if quit_button_rect.collidepoint((mx, my)) and click:
-        pygame.quit()
-        sys.exit()
-
-    pygame.display.update()
+    pygame.quit()
 
 if __name__ == "__main__":
-    menu()
+    main()
+
