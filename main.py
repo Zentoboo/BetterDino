@@ -289,47 +289,31 @@ class Tumbleweed(Obstacle):
     def is_clicked(self, pos):
         return self.rect.collidepoint(pos)
 
-def reset_game():
-    global obstacles, x_pos_bg, y_pos_bg, fg_game_speed, bg_game_speed, points, clouds, death_count, player, is_dead_animation
-
-    player = Dinosaur()
-    obstacles = []
-    bg_game_speed = 5
-    fg_game_speed = 14
-    x_pos_bg = 0
-    y_pos_bg = 380
-    points = 0
-    clouds = [Cloud()]
-    death_count = 0
-    is_dead_animation = False
-
 
 def menu():
     global SCREEN, FONT, high_score
+    isQuit = False
 
-    # Display starting text
-    menu_text = FONT.render("\"Press any key to begin\"", True, (0, 0, 0))
-    text_rect = menu_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
-    SCREEN.fill((255, 255, 255))
-    SCREEN.blit(menu_text, text_rect)
+    while not isQuit:
+        # Display starting text
+        menu_text = FONT.render("\"Press any key to begin\"", True, (0, 0, 0))
+        text_rect = menu_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
+        SCREEN.fill((255, 255, 255))
+        SCREEN.blit(menu_text, text_rect)
 
-    # Display high score
-    high_score_text = FONT.render(f"High Score: {high_score}", True, (0, 0, 0))
-    high_score_rect = high_score_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 50))
-    SCREEN.blit(high_score_text, high_score_rect)
+        # Display high score
+        high_score_text = FONT.render(f"High Score: {high_score}", True, (0, 0, 0))
+        high_score_rect = high_score_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 50))
+        SCREEN.blit(high_score_text, high_score_rect)
 
-    pygame.display.flip()
-
-    waiting = True
-    while waiting:
+        pygame.display.flip()
+        pygame.display.update()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-                return False
-            if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
-                reset_game()
-                waiting = False
-    return True
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                isQuit = True  # Exit the menu loop to start the game
 
 def main():
     global points, obstacles, x_pos_bg, y_pos_bg, fg_game_speed, bg_game_speed, death_count, high_score
@@ -344,8 +328,6 @@ def main():
     points = 0
     clouds = [Cloud()]
     is_dead_animation = False  # Add a global variable for the death animation state
-
-    menu()  # Display menu before starting the game loop
 
     def score():
         global points, fg_game_speed
@@ -375,7 +357,8 @@ def main():
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                run = False
+                pygame.quit()
+                sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
                 for obstacle in obstacles:
@@ -436,13 +419,14 @@ def main():
             # Reset points for new game
             points = 0
             run = False
-            
 
         clock.tick(30)
         pygame.display.update()
 
-    pygame.quit()
-
 if __name__ == "__main__":
-    main()
+    pygame.init()
+    while True:
+        menu()
+        main()
+
 
