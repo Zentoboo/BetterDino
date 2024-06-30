@@ -19,6 +19,7 @@ RUNNING = [pygame.image.load(os.path.join("Assets/Dino", "DinoRun1nw.png")),
 JUMPING = pygame.image.load(os.path.join("Assets/Dino", "DinoJumpnw.png"))
 DUCKING = [pygame.image.load(os.path.join("Assets/Dino", "DinoDuck1nw.png")),
            pygame.image.load(os.path.join("Assets/Dino", "DinoDuck2nw.png"))]
+DINO_DEAD = pygame.image.load(os.path.join("Assets/Dino", "DinoDead.png"))
 
 SMALL_CACTUS = [pygame.image.load(os.path.join("Assets/Cactus", "SmallCactus1.png")),
                 pygame.image.load(os.path.join("Assets/Cactus", "SmallCactus2.png")),
@@ -61,6 +62,7 @@ class Dinosaur:
         self.duck_img = DUCKING
         self.run_img = RUNNING
         self.jump_img = JUMPING
+        self.dead_img = DINO_DEAD
 
         self.dinoDuck = False
         self.dinoRun = True
@@ -172,6 +174,7 @@ class Dinosaur:
                 SCREEN.blit(self.heart_empty, (30 + i * 40, 30))
 
     def start_death_animation(self):
+        self.image = self.dead_img
         self.is_jumping = False
         self.jump_velocity = 15
         self.is_dead_animation = True
