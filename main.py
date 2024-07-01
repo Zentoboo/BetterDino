@@ -293,7 +293,40 @@ class Tumbleweed(Obstacle):
     def is_clicked(self, pos):
         return self.rect.collidepoint(pos)
 
-def pause_screen():
+def countdown(player, obstacles, clouds, background):
+    large_font = pygame.font.Font(FONT_PATH, 75)
+    greyColor = (80, 80, 80)
+    count = 3
+    while count > 0:
+        # Draw the game background
+        SCREEN.fill((255, 255, 255))
+        background()
+        for cloud in clouds:
+            cloud.draw(SCREEN)
+        for obstacle in obstacles:
+            obstacle.draw(SCREEN)
+        player.draw(SCREEN)
+        player.draw_hearts(SCREEN)
+        
+        # Draw the countdown
+        count_text = large_font.render(str(count), True, greyColor)  
+        count_rect = count_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 100))  
+        pygame.draw.rect(SCREEN, (255, 255, 255), count_rect)  
+        SCREEN.blit(count_text, count_rect)
+        
+        pygame.display.update()
+        pygame.time.delay(1000)
+        count -= 1
+    
+    # "GO!" text
+    go_text = large_font.render("GO!", True, greyColor)
+    go_rect = go_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 100))
+    pygame.draw.rect(SCREEN, (255, 255, 255), go_rect)
+    SCREEN.blit(go_text, go_rect)
+    pygame.display.update()
+    pygame.time.delay(500)
+
+def pause_screen(player, obstacles, clouds, background):
     paused = True
     while paused:
         for event in pygame.event.get():
@@ -309,19 +342,28 @@ def pause_screen():
 
         # Display pause screen
         SCREEN.fill((255, 255, 255))
+        background()
+        for cloud in clouds:
+            cloud.draw(SCREEN)
+        for obstacle in obstacles:
+            obstacle.draw(SCREEN)
+        player.draw(SCREEN)
+        player.draw_hearts(SCREEN)
+
         pause_text = FONT.render("PAUSED", True, (0, 0, 0))
         resume_text = FONT.render("Press 'W' to Resume", True, (0, 0, 0))
         quit_text = FONT.render("Press 'Q' to Quit", True, (0, 0, 0))
 
-        SCREEN.blit(pause_text, pause_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 50)))
-        SCREEN.blit(resume_text, resume_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 20)))
-        SCREEN.blit(quit_text, quit_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 70)))
+        SCREEN.blit(pause_text, pause_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 250)))
+        SCREEN.blit(resume_text, resume_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 170)))
+        SCREEN.blit(quit_text, quit_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 200)))
 
         pygame.display.update()
         clock.tick(30)
 
     # After unpausing, show countdown
-    countdown()
+    countdown(player, obstacles, clouds, background)  
+
 
 def menu():
     global SCREEN, FONT, high_score
@@ -394,7 +436,7 @@ def main():
                 sys.exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    pause_screen()
+                    pause_screen(player, obstacles, clouds, background)
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
                 for obstacle in obstacles:
