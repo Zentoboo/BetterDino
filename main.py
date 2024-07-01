@@ -5,6 +5,7 @@ import random
 
 pygame.init()
 
+clock = pygame.time.Clock()
 death_count = 0
 high_score = 0
 
@@ -292,6 +293,35 @@ class Tumbleweed(Obstacle):
     def is_clicked(self, pos):
         return self.rect.collidepoint(pos)
 
+def pause_screen():
+    paused = True
+    while paused:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_w:  # Resume game if 'W' is pressed
+                    paused = False
+                elif event.key == pygame.K_q:  # Quit game if 'Q' is pressed
+                    pygame.quit()
+                    sys.exit()
+
+        # Display pause screen
+        SCREEN.fill((255, 255, 255))
+        pause_text = FONT.render("PAUSED", True, (0, 0, 0))
+        resume_text = FONT.render("Press 'W' to Resume", True, (0, 0, 0))
+        quit_text = FONT.render("Press 'Q' to Quit", True, (0, 0, 0))
+
+        SCREEN.blit(pause_text, pause_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 50)))
+        SCREEN.blit(resume_text, resume_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 20)))
+        SCREEN.blit(quit_text, quit_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 70)))
+
+        pygame.display.update()
+        clock.tick(30)
+
+    # After unpausing, show countdown
+    countdown()
 
 def menu():
     global SCREEN, FONT, high_score
@@ -362,6 +392,9 @@ def main():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    pause_screen()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
                 for obstacle in obstacles:
