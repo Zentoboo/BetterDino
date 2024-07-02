@@ -182,7 +182,7 @@ def main():
         for obstacle in obstacles:
             obstacle.draw(SCREEN)
             if not is_dead_animation:
-                if obstacle.update() or (isinstance(obstacle, Tumbleweed) and obstacle.should_remove):
+                if obstacle.update(fg_game_speed) or (isinstance(obstacle, Tumbleweed) and obstacle.should_remove):
                     obstacles_to_remove.append(obstacle)
             if player.dino_rect.colliderect(obstacle.rect):
                 if player.handle_collision():

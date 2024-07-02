@@ -174,8 +174,8 @@ class Obstacle:
         self.rect = self.image[self.type].get_rect()
         self.rect.x = SCREEN_WIDTH
 
-    def update(self):
-        self.rect.x -= fg_game_speed
+    def update(self,obstacle_speed):
+        self.rect.x -= obstacle_speed
         if self.rect.x < -self.rect.width:
             return True  # Signal that this obstacle should be removed
         return False
@@ -222,8 +222,8 @@ class Tumbleweed(Obstacle):
         self.gravity = 0.5  # Gravity effect
         self.should_remove = False  # New flag to indicate if the tumbleweed should be removed
 
-    def update(self):
-        self.rect.x -= fg_game_speed
+    def update(self,obstacle_speed):
+        self.rect.x -= obstacle_speed
 
         # Bounce effect
         self.rect.y += self.y_velocity
