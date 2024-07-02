@@ -8,7 +8,8 @@
 - [ ] Create user save file
 - [ ] Replace the dino's ability to destroy tumbleweed by clicking to shooting fireballs and when it hits it, the tumbleweed gets burnt
 - [x] Add the ability of using W and S equivalent to Up key and Down key respectively.
-- [ ] Add lives for the dino
+- [x] Add lives for the dino
+- [x] set death animation
 ## Reference:
 - https://youtube.com/playlist?list=PL30AETbxgR-fAbwiuU1vDl3owNUPUuVrz&si=_g38aaVXZGXDdXaI
 - https://www.youtube.com/watch?v=tJiKYMQJnYg
