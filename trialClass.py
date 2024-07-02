@@ -39,7 +39,6 @@ class Dinosaur:
         return self.dino_rect.center
     
     def update(self, userInput, keyInput):
-        global obstacles
         if self.dinoDuck:
             self.duck()
         if self.dinoRun:
@@ -63,12 +62,7 @@ class Dinosaur:
             self.dinoRun = True
             self.dinoJump = False
 
-        if keyInput[0]:
-            pos = pygame.mouse.get_pos()
-            for obstacle in obstacles:
-                if isinstance(obstacle, Tumbleweed) and obstacle.is_clicked(pos):
-                    obstacles.remove(obstacle)
-                    break
+        
 
         # Set the invincibility time to 2 seconds
         if self.is_invincible and (pygame.time.get_ticks() - self.invincible_start_time) > 2000:
@@ -247,11 +241,6 @@ class Tumbleweed(Obstacle):
 
         return self.should_remove  # Return the flag
 
-    def is_clicked(self, pos):
-        if self.rect.collidepoint(pos):
-            self.should_remove = True
-            return True
-        return False
 
 def findAngle(sprite_pos, mouse_pos):
     dx = mouse_pos[0] - sprite_pos[0]

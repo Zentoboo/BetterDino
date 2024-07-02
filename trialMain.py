@@ -78,20 +78,30 @@ def pause_screen(player, obstacles, clouds, background):
 
 
 def menu():
-    global SCREEN, FONT, high_score
+    global SCREEN, FONT, high_score, current_score, death_count
     isQuit = False
 
     while not isQuit:
         # Display starting text
         menu_text = FONT.render("\"Press any key to begin\"", True, (0, 0, 0))
-        text_rect = menu_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
+        text_rect = menu_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 50))
         SCREEN.fill((255, 255, 255))
         SCREEN.blit(menu_text, text_rect)
-
+        
         # Display high score
         high_score_text = FONT.render(f"High Score: {high_score}", True, (0, 0, 0))
-        high_score_rect = high_score_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 50))
+        high_score_rect = high_score_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 0))
         SCREEN.blit(high_score_text, high_score_rect)
+
+        # Display score
+        current_score_text = FONT.render(f"Current Score: {current_score}", True, (0,0,0))
+        current_score_rect = current_score_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 50))
+        SCREEN.blit(current_score_text,current_score_rect)
+        
+        # Display death count
+        death_count_text = FONT.render(f"Death Count: {death_count}", True, (0,0,0))
+        death_count_rect = death_count_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 100))
+        SCREEN.blit(death_count_text,death_count_rect)
 
         pygame.display.flip()
         pygame.display.update()
@@ -103,7 +113,7 @@ def menu():
                 isQuit = True  # Exit the menu loop to start the game
 
 def main():
-    global points, obstacles, x_pos_bg, y_pos_bg, fg_game_speed, bg_game_speed, death_count, high_score
+    global points, obstacles, x_pos_bg, y_pos_bg, fg_game_speed, bg_game_speed, death_count, high_score, current_score
     run = True
     player = Dinosaur()
     obstacles = []
@@ -167,9 +177,6 @@ def main():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
                 projectiles.append(create_projectile())
-                for obstacle in obstacles:
-                    if isinstance(obstacle, Tumbleweed) and obstacle.is_clicked(pos):
-                        break  # No need to remove here, we'll remove it in the main loop
 
         SCREEN.fill((255, 255, 255))
         userInput = pygame.key.get_pressed()
@@ -185,6 +192,24 @@ def main():
 
         if len(obstacles) == 0 and not is_dead_animation:
             obstacles.append(create_obstacle())
+
+        projectiles_to_remove = []
+        for projectile in projectiles:
+            projectile.update()
+            projectile.draw(SCREEN)
+            # Check if projectile collide with obstacle
+            for obstacle in obstacles:
+                if isinstance(obstacle, Tumbleweed) and projectile.rect.colliderect(obstacle.rect):
+                    obstacle.should_remove = True
+                    projectiles_to_remove.append(projectile)
+            # Check if projectile is offscreen
+            if projectile.rect.right < 0 or projectile.rect.left > SCREEN_WIDTH or \
+            projectile.rect.bottom < 0 or projectile.rect.top > SCREEN_HEIGHT:
+                projectiles_to_remove.append(projectile)
+
+        # Remove projectiles that hit a tumbleweed
+        for projectile in projectiles_to_remove:
+            projectiles.remove(projectile)
 
         obstacles_to_remove = []
         for obstacle in obstacles:
@@ -212,9 +237,6 @@ def main():
             if not is_dead_animation:  # Pause cloud updates
                 cloud.update()
 
-        for projectile in projectiles:
-            projectile.update()
-            projectile.draw(SCREEN)
 
         score()
 
@@ -226,6 +248,7 @@ def main():
             # Update high score if points exceed current high score
             if points > high_score:
                 high_score = points
+            current_score = points
 
             # Reset points for new game
             points = 0

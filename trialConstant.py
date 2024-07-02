@@ -52,6 +52,7 @@ HEART_EMPTY = pygame.image.load(os.path.join("Assets/Heart", "Heart2.png"))
 clock = pygame.time.Clock()
 death_count = 0
 high_score = 0
+current_score = 0
 points = 0
 obstacles = []
 x_pos_bg = 0
