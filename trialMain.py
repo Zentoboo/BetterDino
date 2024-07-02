@@ -39,6 +39,7 @@ def countdown(player, obstacles, clouds, background):
     pygame.time.delay(500)
 
 def pause_screen(player, obstacles, clouds, background):
+    global paused
     paused = True
     while paused:
         for event in pygame.event.get():
@@ -144,7 +145,7 @@ def main():
 
     def background():
         global x_pos_bg, y_pos_bg
-        if not is_dead_animation:
+        if not is_dead_animation and not paused:
             image_width = DESERT_SAND.get_width()
             SCREEN.blit(DESERT_SAND, (x_pos_bg, y_pos_bg))
             SCREEN.blit(DESERT_SAND, (image_width + x_pos_bg, y_pos_bg))

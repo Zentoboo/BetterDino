@@ -58,6 +58,7 @@ x_pos_bg = 0
 y_pos_bg = 380
 fg_game_speed = 14
 bg_game_speed = 5
+paused = False
 
 INITIAL_GAME_SPEED = 14
 SPEED_INCREMENT = 1
