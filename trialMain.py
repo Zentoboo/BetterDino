@@ -129,10 +129,18 @@ def main():
             # Increase speed every SPEED_INCREMENT_INTERVAL points
             if points % SPEED_INCREMENT_INTERVAL == 0:
                 fg_game_speed += SPEED_INCREMENT
-        text = FONT.render("Points: " + str(points), True, (0, 0, 0))
-        textRect = text.get_rect()
-        textRect.center = (1000, 40)
-        SCREEN.blit(text, textRect)
+        # Display score
+        score_text = FONT.render("Points: " + str(points), True, (0, 0, 0))
+        score_text_rect = score_text.get_rect()
+        score_text_rect.center = (1000, 40)
+        SCREEN.blit(score_text, score_text_rect)
+        
+        # Display game speed
+        game_speed_text = FONT.render("Game Speed: " + str(fg_game_speed-INITIAL_GAME_SPEED+1), True, (0,0,0))
+        game_speed_text_rect = game_speed_text.get_rect()
+        game_speed_text_rect.center = (300,40)
+        SCREEN.blit(game_speed_text,game_speed_text_rect)
+        
 
     def background():
         global x_pos_bg, y_pos_bg
