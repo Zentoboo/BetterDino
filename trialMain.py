@@ -107,6 +107,7 @@ def main():
     run = True
     player = Dinosaur()
     obstacles = []
+    projectiles = []
     clouds = [Cloud()]
     is_dead_animation = False
     fg_game_speed = INITIAL_GAME_SPEED  # Reset game speed at the start of each game
@@ -148,6 +149,12 @@ def main():
             return Pterodactylus(PTERODACTYLUS)
         elif obstacle_type == 3:
             return Tumbleweed(TUMBLEWEED)
+    
+    def create_projectile():
+        pos = pygame.mouse.get_pos()
+        dino_pos = player.getPosition()
+        offset_dino_pos = (dino_pos[0]+20,dino_pos[1]-20) # offset dino position
+        return Projectile(offset_dino_pos, pos, fg_game_speed,PROJECTILE)
 
     while run:
         for event in pygame.event.get():
@@ -159,6 +166,7 @@ def main():
                     pause_screen(player, obstacles, clouds, background)
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
+                projectiles.append(create_projectile())
                 for obstacle in obstacles:
                     if isinstance(obstacle, Tumbleweed) and obstacle.is_clicked(pos):
                         break  # No need to remove here, we'll remove it in the main loop
@@ -203,6 +211,10 @@ def main():
             cloud.draw(SCREEN)
             if not is_dead_animation:  # Pause cloud updates
                 cloud.update()
+
+        for projectile in projectiles:
+            projectile.update()
+            projectile.draw(SCREEN)
 
         score()
 

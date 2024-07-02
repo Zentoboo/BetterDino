@@ -7,9 +7,10 @@
 - [ ] Create better hitbox for the sprites
 - [ ] Create user save file
 - [ ] Replace the dino's ability to destroy tumbleweed by clicking to shooting fireballs and when it hits it, the tumbleweed gets burnt
+- [ ] Create projectile
 - [x] Add the ability of using W and S equivalent to Up key and Down key respectively.
 - [x] Add lives for the dino
-- [x] set death animation
+- [x] Set death animation
 ## Reference:
 - https://youtube.com/playlist?list=PL30AETbxgR-fAbwiuU1vDl3owNUPUuVrz&si=_g38aaVXZGXDdXaI
 - https://www.youtube.com/watch?v=tJiKYMQJnYg

@@ -2,6 +2,7 @@ import sys
 import pygame
 import os
 import random
+import math
 from trialConstant import *
 
 class Dinosaur:
@@ -34,6 +35,9 @@ class Dinosaur:
         self.heart_full = pygame.transform.scale(HEART_FULL, (30, 30))
         self.heart_empty = pygame.transform.scale(HEART_EMPTY, (30, 30))
 
+    def getPosition(self):
+        return self.dino_rect.center
+    
     def update(self, userInput, keyInput):
         global obstacles
         if self.dinoDuck:
@@ -105,7 +109,11 @@ class Dinosaur:
                 SCREEN.blit(self.image, (self.dino_rect.x, self.dino_rect.y))
         else:
             SCREEN.blit(self.image, (self.dino_rect.x, self.dino_rect.y))
-
+        # draw line
+        mouse_pos = pygame.mouse.get_pos()
+        offset_dino_pos = (self.dino_rect.center[0]+20,self.dino_rect.center[1]-20) # offset dino position
+        pygame.draw.line(SCREEN,(255,0,0),offset_dino_pos,mouse_pos,2)
+        
     def handle_collision(self):
         if not self.is_invincible:
             if self.life_count > 1:
@@ -244,3 +252,33 @@ class Tumbleweed(Obstacle):
             self.should_remove = True
             return True
         return False
+
+def findAngle(sprite_pos, mouse_pos):
+    dx = mouse_pos[0] - sprite_pos[0]
+    dy = mouse_pos[1] - sprite_pos[1]
+    try:
+        angle = math.atan2(dy, dx)
+    except ZeroDivisionError:
+        angle = math.pi / 2  # Default to pi/2 (90 degrees) if dx is zero
+
+    return angle
+
+class Projectile(object):
+    def __init__(self,sprite_pos,mouse_pos,projectile_speed,image):
+        self.index = 0
+        self.angle = findAngle(sprite_pos,mouse_pos)
+        self.projectile_speed = projectile_speed
+        self.image = image
+        self.rect = self.image[0].get_rect()
+        self.rect.x = sprite_pos[0]
+        self.rect.y = sprite_pos[1]
+        self.x_velocity = math.cos(self.angle) * self.projectile_speed
+        self.y_velocity = math.sin(self.angle) * self.projectile_speed
+    def update(self):
+        self.rect.x += self.x_velocity
+        self.rect.y += self.y_velocity
+    def draw(self,SCREEN):
+        if self.index >= 19:
+            self.index = 0
+        SCREEN.blit(self.image[self.index // 5], self.rect)
+        self.index += 1
