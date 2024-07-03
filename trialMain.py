@@ -81,12 +81,22 @@ def pause_screen(player, obstacles, clouds, background):
 def menu():
     global SCREEN, FONT, high_score, current_score, death_count
     isQuit = False
+    dino_index = 0
+    dino_rect = MENU_DINO[0].get_rect()
+    dino_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 150)
+    clock = pygame.time.Clock()
 
     while not isQuit:
+        # White canvas
+        SCREEN.fill((255, 255, 255))
+
+        # Animate the dino
+        SCREEN.blit(MENU_DINO[dino_index], dino_rect)
+        dino_index = (dino_index + 1) % 2  # Alternate between 0 and 1
+
         # Display starting text
         menu_text = FONT.render("\"Press any key to begin\"", True, (0, 0, 0))
         text_rect = menu_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 50))
-        SCREEN.fill((255, 255, 255))
         SCREEN.blit(menu_text, text_rect)
         
         # Display high score
@@ -112,6 +122,8 @@ def menu():
                 sys.exit()
             if event.type == pygame.KEYDOWN:
                 isQuit = True  # Exit the menu loop to start the game
+        
+        clock.tick(10)  # Control the animation speed
 
 def main():
     global points, obstacles, x_pos_bg, y_pos_bg, fg_game_speed, bg_game_speed, death_count, high_score, current_score

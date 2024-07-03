@@ -47,6 +47,11 @@ FONT = pygame.font.Font(FONT_PATH, FONT_SIZE)
 HEART_FULL = pygame.image.load(os.path.join("Assets/Heart", "Heart1.png"))
 HEART_EMPTY = pygame.image.load(os.path.join("Assets/Heart", "Heart2.png"))
 
+MENU_DINO = [
+    pygame.image.load(os.path.join("Assets/Dino", "DinoRun1.png")),
+    pygame.image.load(os.path.join("Assets/Dino", "DinoRun2.png"))
+]
+
 # Global variables
 clock = pygame.time.Clock()
 death_count = 0
