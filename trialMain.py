@@ -125,6 +125,7 @@ def menu():
 
 def main():
     global points, obstacles, x_pos_bg, y_pos_bg, fg_game_speed, bg_game_speed, death_count, high_score, current_score, return_to_menu
+    return_to_menu = False
     run = True
     player = Dinosaur()
     obstacles = []
@@ -195,7 +196,6 @@ def main():
                         run = False
                         break
             if event.type == pygame.MOUSEBUTTONDOWN:
-                pos = pygame.mouse.get_pos()
                 projectiles.append(create_projectile())
 
         if not run:
