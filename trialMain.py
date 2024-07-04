@@ -3,8 +3,9 @@ import pygame
 import os
 import random
 from trialConstant import *
-from trialClass import * 
-def drawEntity(player,obstacles,clouds,background,projectiles):
+from trialClass import *
+
+def drawEntity(player, obstacles, clouds, background, projectiles):
     # Draw the game background
     SCREEN.fill((255, 255, 255))
     background()
@@ -13,21 +14,21 @@ def drawEntity(player,obstacles,clouds,background,projectiles):
     for obstacle in obstacles:
         obstacle.draw(SCREEN)
     for projectile in projectiles:
-            projectile.draw(SCREEN)
+        projectile.draw(SCREEN)
     player.draw(SCREEN)
     player.draw_hearts(SCREEN)
-    
-def countdown(player, obstacles, clouds, background,projectiles):
+
+def countdown(player, obstacles, clouds, background, projectiles):
     large_font = pygame.font.Font(FONT_PATH, 75)
     greyColor = (80, 80, 80)
     count = 3
     while count > 0:
-        drawEntity(player, obstacles, clouds, background,projectiles)
+        drawEntity(player, obstacles, clouds, background, projectiles)
         
         # Draw the countdown
-        count_text = large_font.render(str(count), True, greyColor)  
-        count_rect = count_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 100))  
-        pygame.draw.rect(SCREEN, (255, 255, 255), count_rect)  
+        count_text = large_font.render(str(count), True, greyColor)
+        count_rect = count_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 100))
+        pygame.draw.rect(SCREEN, (255, 255, 255), count_rect)
         SCREEN.blit(count_text, count_rect)
         
         pygame.display.update()
@@ -42,9 +43,10 @@ def countdown(player, obstacles, clouds, background,projectiles):
     pygame.display.update()
     pygame.time.delay(500)
 
-def pause_screen(player, obstacles, clouds, background,projectiles):
-    global paused
+def pause_screen(player, obstacles, clouds, background, projectiles):
+    global paused, return_to_menu
     paused = True
+    return_to_menu = False
     while paused:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -54,10 +56,10 @@ def pause_screen(player, obstacles, clouds, background,projectiles):
                 if event.key == pygame.K_w:  # Resume game if 'W' is pressed
                     paused = False
                 elif event.key == pygame.K_q:  # Quit game if 'Q' is pressed
-                    pygame.quit()
-                    sys.exit()
+                    return_to_menu = True
+                    paused = False
 
-        drawEntity(player,obstacles,clouds,background,projectiles)
+        drawEntity(player, obstacles, clouds, background, projectiles)
 
         pause_text = FONT.render("PAUSED", True, (0, 0, 0))
         resume_text = FONT.render("Press 'W' to Resume", True, (0, 0, 0))
@@ -70,9 +72,9 @@ def pause_screen(player, obstacles, clouds, background,projectiles):
         pygame.display.update()
         clock.tick(30)
 
-    # After unpausing, show countdown
-    countdown(player, obstacles, clouds, background,projectiles)  
-
+    # After unpausing, show countdown if not returning to menu
+    if not return_to_menu:
+        countdown(player, obstacles, clouds, background, projectiles)
 
 def menu():
     global SCREEN, FONT, high_score, current_score, death_count
@@ -101,14 +103,14 @@ def menu():
         SCREEN.blit(high_score_text, high_score_rect)
 
         # Display score
-        current_score_text = FONT.render(f"Current Score: {current_score}", True, (0,0,0))
+        current_score_text = FONT.render(f"Current Score: {current_score}", True, (0, 0, 0))
         current_score_rect = current_score_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 50))
-        SCREEN.blit(current_score_text,current_score_rect)
+        SCREEN.blit(current_score_text, current_score_rect)
         
         # Display death count
-        death_count_text = FONT.render(f"Death Count: {death_count}", True, (0,0,0))
+        death_count_text = FONT.render(f"Death Count: {death_count}", True, (0, 0, 0))
         death_count_rect = death_count_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 100))
-        SCREEN.blit(death_count_text,death_count_rect)
+        SCREEN.blit(death_count_text, death_count_rect)
 
         pygame.display.flip()
         pygame.display.update()
@@ -122,7 +124,7 @@ def menu():
         clock.tick(10)  # Control the animation speed
 
 def main():
-    global points, obstacles, x_pos_bg, y_pos_bg, fg_game_speed, bg_game_speed, death_count, high_score, current_score
+    global points, obstacles, x_pos_bg, y_pos_bg, fg_game_speed, bg_game_speed, death_count, high_score, current_score, return_to_menu
     run = True
     player = Dinosaur()
     obstacles = []
@@ -145,11 +147,10 @@ def main():
         SCREEN.blit(score_text, score_text_rect)
         
         # Display game speed
-        game_speed_text = FONT.render("Game Speed: " + str(fg_game_speed-INITIAL_GAME_SPEED+1), True, (0,0,0))
+        game_speed_text = FONT.render("Game Speed: " + str(fg_game_speed-INITIAL_GAME_SPEED+1), True, (0, 0, 0))
         game_speed_text_rect = game_speed_text.get_rect()
-        game_speed_text_rect.center = (300,40)
-        SCREEN.blit(game_speed_text,game_speed_text_rect)
-        
+        game_speed_text_rect.center = (300, 40)
+        SCREEN.blit(game_speed_text, game_speed_text_rect)
 
     def background():
         global x_pos_bg, y_pos_bg
@@ -165,7 +166,6 @@ def main():
             SCREEN.blit(DESERT_SAND, (x_pos_bg, y_pos_bg))
             SCREEN.blit(DESERT_SAND, (DESERT_SAND.get_width() + x_pos_bg, y_pos_bg))
 
-
     def create_obstacle():
         obstacle_type = random.randint(0, 3)
         if obstacle_type == 0:
@@ -180,8 +180,8 @@ def main():
     def create_projectile():
         pos = pygame.mouse.get_pos()
         dino_pos = player.getPosition()
-        offset_dino_pos = (dino_pos[0]+20,dino_pos[1]-20) # offset dino position
-        return Projectile(offset_dino_pos, pos, fg_game_speed,PROJECTILE)
+        offset_dino_pos = (dino_pos[0] + 20, dino_pos[1] - 20)  # offset dino position
+        return Projectile(offset_dino_pos, pos, fg_game_speed, PROJECTILE)
 
     while run:
         for event in pygame.event.get():
@@ -190,10 +190,16 @@ def main():
                 sys.exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    pause_screen(player, obstacles, clouds, background,projectiles)
+                    pause_screen(player, obstacles, clouds, background, projectiles)
+                    if return_to_menu:
+                        run = False
+                        break
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
                 projectiles.append(create_projectile())
+
+        if not run:
+            break
 
         SCREEN.fill((255, 255, 255))
         userInput = pygame.key.get_pressed()
@@ -272,8 +278,11 @@ def main():
 
         clock.tick(30)
         pygame.display.update()
-    
+
     fg_game_speed = INITIAL_GAME_SPEED
+    if return_to_menu:
+        points = 0  # Reset points when returning to the menu
+        current_score = 0  # Reset current score when returning to the menu
 
 if __name__ == "__main__":
     pygame.init()
