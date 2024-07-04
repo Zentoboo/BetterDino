@@ -282,7 +282,6 @@ def main():
     fg_game_speed = INITIAL_GAME_SPEED
     if return_to_menu:
         points = 0  # Reset points when returning to the menu
-        current_score = 0  # Reset current score when returning to the menu
 
 if __name__ == "__main__":
     pygame.init()
