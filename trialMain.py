@@ -4,21 +4,25 @@ import os
 import random
 from trialConstant import *
 from trialClass import * 
-
-def countdown(player, obstacles, clouds, background):
+def drawEntity(player,obstacles,clouds,background,projectiles):
+    # Draw the game background
+    SCREEN.fill((255, 255, 255))
+    background()
+    for cloud in clouds:
+        cloud.draw(SCREEN)
+    for obstacle in obstacles:
+        obstacle.draw(SCREEN)
+    for projectile in projectiles:
+            projectile.draw(SCREEN)
+    player.draw(SCREEN)
+    player.draw_hearts(SCREEN)
+    
+def countdown(player, obstacles, clouds, background,projectiles):
     large_font = pygame.font.Font(FONT_PATH, 75)
     greyColor = (80, 80, 80)
     count = 3
     while count > 0:
-        # Draw the game background
-        SCREEN.fill((255, 255, 255))
-        background()
-        for cloud in clouds:
-            cloud.draw(SCREEN)
-        for obstacle in obstacles:
-            obstacle.draw(SCREEN)
-        player.draw(SCREEN)
-        player.draw_hearts(SCREEN)
+        drawEntity(player, obstacles, clouds, background,projectiles)
         
         # Draw the countdown
         count_text = large_font.render(str(count), True, greyColor)  
@@ -38,7 +42,7 @@ def countdown(player, obstacles, clouds, background):
     pygame.display.update()
     pygame.time.delay(500)
 
-def pause_screen(player, obstacles, clouds, background):
+def pause_screen(player, obstacles, clouds, background,projectiles):
     global paused
     paused = True
     while paused:
@@ -53,15 +57,7 @@ def pause_screen(player, obstacles, clouds, background):
                     pygame.quit()
                     sys.exit()
 
-        # Display pause screen
-        SCREEN.fill((255, 255, 255))
-        background()
-        for cloud in clouds:
-            cloud.draw(SCREEN)
-        for obstacle in obstacles:
-            obstacle.draw(SCREEN)
-        player.draw(SCREEN)
-        player.draw_hearts(SCREEN)
+        drawEntity(player,obstacles,clouds,background,projectiles)
 
         pause_text = FONT.render("PAUSED", True, (0, 0, 0))
         resume_text = FONT.render("Press 'W' to Resume", True, (0, 0, 0))
@@ -75,7 +71,7 @@ def pause_screen(player, obstacles, clouds, background):
         clock.tick(30)
 
     # After unpausing, show countdown
-    countdown(player, obstacles, clouds, background)  
+    countdown(player, obstacles, clouds, background,projectiles)  
 
 
 def menu():
@@ -194,7 +190,7 @@ def main():
                 sys.exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    pause_screen(player, obstacles, clouds, background)
+                    pause_screen(player, obstacles, clouds, background,projectiles)
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
                 projectiles.append(create_projectile())
@@ -243,7 +239,7 @@ def main():
                     is_dead_animation = True
                     player.start_death_animation()
 
-        # Remove obstacles that are off-screen or clicked (for Tumbleweed)
+        # Remove obstacles that are off-screen
         for obstacle in obstacles_to_remove:
             obstacles.remove(obstacle)
 
@@ -257,7 +253,6 @@ def main():
             cloud.draw(SCREEN)
             if not is_dead_animation:  # Pause cloud updates
                 cloud.update()
-
 
         score()
 
