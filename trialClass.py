@@ -31,8 +31,8 @@ class Dinosaur:
         self.is_invincible = False  # Invincible state
         self.invincible_start_time = 0  # Invincible start time
         self.shake_timer = 0
-        self.shake_duration = 15  # 抖动持续的帧数
-        self.shake_amplitude = 5  # 抖动幅度
+        self.shake_duration = 15  # Number of frames the jitter lasts
+        self.shake_amplitude = 5  # Amplitude of shaking
 
         # Shrink heart pictures
         self.heart_full = pygame.transform.scale(HEART_FULL, (30, 30))
@@ -115,7 +115,7 @@ class Dinosaur:
     def handle_collision(self):
         global is_music_playing
         if not self.is_invincible:
-            self.shake_timer = self.shake_duration  # 开始抖动
+            self.shake_timer = self.shake_duration  # Starting to shake.
             if self.life_count > 1:
                 if is_music_playing:
                     COLLISION_SOUND.play()

@@ -65,12 +65,17 @@ MENU_BG = 'Assets/Sound/Menuscreen BG.mp3'
 PLAY_BG = 'Assets/Sound/Play BG.mp3'
 SHOOT_SOUND = pygame.mixer.Sound('Assets/Sound/Shoot.mp3')
 TUMBLEWEED_SOUND = pygame.mixer.Sound('Assets/Sound/Tumbleweed Scoring.mp3')
+COUNT_SOUND = pygame.mixer.Sound('Assets/Sound/Count.wav')
+GO_SOUND = pygame.mixer.Sound('Assets/Sound/Go.mp3')
+PAUSE_SOUND = pygame.mixer.Sound('Assets/Sound/Pause.wav')
+QUIT_SOUND = pygame.mixer.Sound('Assets/Sound/Pause.wav')
 
 COLLISION_SOUND.set_volume(0.3)
 DIE_SOUND.set_volume(0.5)
 JUMP_SOUND.set_volume(0.3)
 SHOOT_SOUND.set_volume(0.3)
 TUMBLEWEED_SOUND.set_volume(0.2)
+COUNT_SOUND.set_volume(1.5)
 
 # Global variables
 clock = pygame.time.Clock()

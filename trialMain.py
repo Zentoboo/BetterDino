@@ -30,6 +30,9 @@ def countdown(player, obstacles, clouds, background, projectiles):
         count_rect = count_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 100))
         pygame.draw.rect(SCREEN, (255, 255, 255), count_rect)
         SCREEN.blit(count_text, count_rect)
+
+        if is_music_playing:
+            COUNT_SOUND.play()
         
         pygame.display.update()
         pygame.time.delay(1000)
@@ -37,6 +40,8 @@ def countdown(player, obstacles, clouds, background, projectiles):
     
     # "GO!" text
     go_text = large_font.render("GO!", True, greyColor)
+    if is_music_playing:
+        GO_SOUND.play()
     go_rect = go_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 100))
     pygame.draw.rect(SCREEN, (255, 255, 255), go_rect)
     SCREEN.blit(go_text, go_rect)
@@ -63,6 +68,8 @@ def pause_screen(player, obstacles, clouds, background, projectiles):
                 if event.key == pygame.K_r:  # Resume game if 'W' is pressed
                     paused = False
                 elif event.key == pygame.K_q:  # Quit game if 'Q' is pressed
+                    if is_music_playing:
+                        QUIT_SOUND.play()
                     return_to_menu = True
                     if is_music_playing:
                         pygame.mixer.music.unpause()
@@ -251,6 +258,8 @@ def main():
                 sys.exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
+                    if is_music_playing:
+                        PAUSE_SOUND.play()
                     pause_screen(player, obstacles, clouds, background, projectiles)
                     if return_to_menu:
                         run = False
