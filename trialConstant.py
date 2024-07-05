@@ -4,6 +4,7 @@ import os
 import random
 
 pygame.init()
+pygame.mixer.init()
 
 # Constants
 SCREEN_WIDTH = 1100
@@ -52,6 +53,25 @@ MENU_DINO = [
     pygame.image.load(os.path.join("Assets/Dino", "DinoRun2.png"))
 ]
 
+SOUND_ON = pygame.image.load(os.path.join("Assets/Sound", "SoundOn.png"))
+SOUND_OFF = pygame.image.load(os.path.join("Assets/Sound", "SoundOff.png"))
+sound_on = pygame.transform.scale(SOUND_ON, (30, 30))
+sound_off = pygame.transform.scale(SOUND_OFF, (30, 30))
+
+COLLISION_SOUND = pygame.mixer.Sound('Assets/Sound/Collision.MP3')
+DIE_SOUND = pygame.mixer.Sound('Assets/Sound/Die.wav')
+JUMP_SOUND = pygame.mixer.Sound('Assets/Sound/Jump.MP3')
+MENU_BG = 'Assets/Sound/Menuscreen BG.mp3'
+PLAY_BG = 'Assets/Sound/Play BG.mp3'
+SHOOT_SOUND = pygame.mixer.Sound('Assets/Sound/Shoot.mp3')
+TUMBLEWEED_SOUND = pygame.mixer.Sound('Assets/Sound/Tumbleweed Scoring.mp3')
+
+COLLISION_SOUND.set_volume(0.3)
+DIE_SOUND.set_volume(0.5)
+JUMP_SOUND.set_volume(0.3)
+SHOOT_SOUND.set_volume(0.3)
+TUMBLEWEED_SOUND.set_volume(0.2)
+
 # Global variables
 clock = pygame.time.Clock()
 death_count = 0
@@ -68,3 +88,5 @@ paused = False
 INITIAL_GAME_SPEED = 14
 SPEED_INCREMENT = 1
 SPEED_INCREMENT_INTERVAL = 100  # Increase speed every 100 points
+
+is_music_playing = True

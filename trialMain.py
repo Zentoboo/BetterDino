@@ -44,9 +44,12 @@ def countdown(player, obstacles, clouds, background, projectiles):
     pygame.time.delay(500)
 
 def pause_screen(player, obstacles, clouds, background, projectiles):
-    global paused, return_to_menu
+    global paused, return_to_menu, is_music_playing
     paused = True
     return_to_menu = False
+
+    sound_icon_rect = sound_on.get_rect(center=(1020, 50))
+
     while paused:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -58,6 +61,13 @@ def pause_screen(player, obstacles, clouds, background, projectiles):
                 elif event.key == pygame.K_q:  # Quit game if 'Q' is pressed
                     return_to_menu = True
                     paused = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if sound_icon_rect.collidepoint(event.pos):
+                    is_music_playing = not is_music_playing
+                    if is_music_playing:
+                        pygame.mixer.music.unpause()
+                    else:
+                        pygame.mixer.music.pause()
 
         drawEntity(player, obstacles, clouds, background, projectiles)
 
@@ -69,6 +79,11 @@ def pause_screen(player, obstacles, clouds, background, projectiles):
         SCREEN.blit(resume_text, resume_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 170)))
         SCREEN.blit(quit_text, quit_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 200)))
 
+        if is_music_playing:
+            SCREEN.blit(sound_on, sound_icon_rect)
+        else:
+            SCREEN.blit(sound_off, sound_icon_rect)
+
         pygame.display.update()
         clock.tick(30)
 
@@ -77,12 +92,18 @@ def pause_screen(player, obstacles, clouds, background, projectiles):
         countdown(player, obstacles, clouds, background, projectiles)
 
 def menu():
-    global SCREEN, FONT, high_score, current_score, death_count
+    global SCREEN, FONT, high_score, current_score, death_count, is_music_playing
     isQuit = False
     dino_index = 0
     dino_rect = MENU_DINO[0].get_rect()
     dino_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 150)
     clock = pygame.time.Clock()
+
+    # Load menu background music
+    if is_music_playing:
+        pygame.mixer.music.load(MENU_BG)
+        pygame.mixer.music.set_volume(0.5)
+        pygame.mixer.music.play(-1)  # Loop indefinitely
 
     while not isQuit:
         # White canvas
@@ -112,6 +133,13 @@ def menu():
         death_count_rect = death_count_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 100))
         SCREEN.blit(death_count_text, death_count_rect)
 
+        # Draw sound icon based on current state
+        sound_icon_rect = sound_on.get_rect(center=(1020, 50))
+        if is_music_playing:
+            SCREEN.blit(sound_on, sound_icon_rect)
+        else:
+            SCREEN.blit(sound_off, sound_icon_rect)
+
         pygame.display.flip()
         pygame.display.update()
         for event in pygame.event.get():
@@ -120,11 +148,25 @@ def menu():
                 sys.exit()
             if event.type == pygame.KEYDOWN:
                 isQuit = True  # Exit the menu loop to start the game
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                if sound_icon_rect.collidepoint(pos):
+                    if is_music_playing:
+                        pygame.mixer.music.stop()
+                    else:
+                        pygame.mixer.music.set_volume(0.5)
+                        pygame.mixer.music.play(-1)
+                    is_music_playing = not is_music_playing
+                    if is_music_playing:
+                        SCREEN.blit(sound_on, sound_icon_rect)
+                    else:
+                        SCREEN.blit(sound_off, sound_icon_rect)
         
         clock.tick(10)  # Control the animation speed
+        pygame.display.update()
 
 def main():
-    global points, obstacles, x_pos_bg, y_pos_bg, fg_game_speed, bg_game_speed, death_count, high_score, current_score, return_to_menu
+    global points, obstacles, x_pos_bg, y_pos_bg, fg_game_speed, bg_game_speed, death_count, high_score, current_score, return_to_menu, is_music_playing
     return_to_menu = False
     run = True
     player = Dinosaur()
@@ -133,6 +175,14 @@ def main():
     clouds = [Cloud()]
     is_dead_animation = False
     fg_game_speed = INITIAL_GAME_SPEED  # Reset game speed at the start of each game
+
+    # Stop menu background music if playing
+    pygame.mixer.music.stop()
+
+    if is_music_playing:
+        pygame.mixer.music.load(PLAY_BG)
+        pygame.mixer.music.set_volume(0.3)
+        pygame.mixer.music.play(-1)  # Loop indefinitely
 
     def score():
         global points, fg_game_speed
@@ -182,7 +232,11 @@ def main():
         pos = pygame.mouse.get_pos()
         dino_pos = player.getPosition()
         offset_dino_pos = (dino_pos[0] + 20, dino_pos[1] - 20)  # offset dino position
+        if is_music_playing:
+            SHOOT_SOUND.play()
         return Projectile(offset_dino_pos, pos, fg_game_speed, PROJECTILE)
+
+    sound_icon_rect = sound_on.get_rect(center=(880, 40))
 
     while run:
         for event in pygame.event.get():
@@ -196,7 +250,14 @@ def main():
                         run = False
                         break
             if event.type == pygame.MOUSEBUTTONDOWN:
-                projectiles.append(create_projectile())
+                if sound_icon_rect.collidepoint(event.pos):
+                    is_music_playing = not is_music_playing
+                    if is_music_playing:
+                        pygame.mixer.music.unpause()
+                    else:
+                        pygame.mixer.music.pause()
+                else:
+                    projectiles.append(create_projectile())
 
         if not run:
             break
@@ -225,6 +286,8 @@ def main():
                 if isinstance(obstacle, Tumbleweed) and projectile.rect.colliderect(obstacle.rect):
                     obstacle.should_remove = True
                     projectiles_to_remove.append(projectile)
+                    if is_music_playing:
+                        TUMBLEWEED_SOUND.play()
             # Check if projectile is offscreen
             if projectile.rect.right < 0 or projectile.rect.left > SCREEN_WIDTH or \
             projectile.rect.bottom < 0 or projectile.rect.top > SCREEN_HEIGHT:
@@ -242,6 +305,9 @@ def main():
                     obstacles_to_remove.append(obstacle)
             if player.dino_rect.colliderect(obstacle.rect):
                 if player.handle_collision():
+                    pygame.mixer.music.stop()  # Stop game music on death
+                    if is_music_playing:
+                        DIE_SOUND.play()
                     is_dead_animation = True
                     player.start_death_animation()
 
@@ -261,6 +327,11 @@ def main():
                 cloud.update()
 
         score()
+
+        if is_music_playing:
+            SCREEN.blit(sound_on, sound_icon_rect)
+        else:
+            SCREEN.blit(sound_off, sound_icon_rect)
 
         # Detecting the completion of the death animation
         if is_dead_animation and player.death_animation_done:
