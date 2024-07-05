@@ -42,6 +42,8 @@ def countdown(player, obstacles, clouds, background, projectiles):
     SCREEN.blit(go_text, go_rect)
     pygame.display.update()
     pygame.time.delay(500)
+    if is_music_playing:
+        pygame.mixer.music.unpause()
 
 def pause_screen(player, obstacles, clouds, background, projectiles):
     global paused, return_to_menu, is_music_playing
@@ -51,15 +53,18 @@ def pause_screen(player, obstacles, clouds, background, projectiles):
     sound_icon_rect = sound_on.get_rect(center=(1020, 50))
 
     while paused:
+        if is_music_playing:
+            pygame.mixer.music.pause()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_w:  # Resume game if 'W' is pressed
+                if event.key == pygame.K_r:  # Resume game if 'W' is pressed
                     paused = False
                 elif event.key == pygame.K_q:  # Quit game if 'Q' is pressed
                     return_to_menu = True
+                    pygame.mixer.music.unpause()
                     paused = False
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if sound_icon_rect.collidepoint(event.pos):
@@ -72,7 +77,7 @@ def pause_screen(player, obstacles, clouds, background, projectiles):
         drawEntity(player, obstacles, clouds, background, projectiles)
 
         pause_text = FONT.render("PAUSED", True, (0, 0, 0))
-        resume_text = FONT.render("Press 'W' to Resume", True, (0, 0, 0))
+        resume_text = FONT.render("Press 'R' to Resume", True, (0, 0, 0))
         quit_text = FONT.render("Press 'Q' to Quit", True, (0, 0, 0))
 
         SCREEN.blit(pause_text, pause_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 250)))
