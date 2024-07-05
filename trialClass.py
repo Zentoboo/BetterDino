@@ -30,6 +30,9 @@ class Dinosaur:
         self.life_count = 3  # Initial life value is 3
         self.is_invincible = False  # Invincible state
         self.invincible_start_time = 0  # Invincible start time
+        self.shake_timer = 0
+        self.shake_duration = 15  # 抖动持续的帧数
+        self.shake_amplitude = 5  # 抖动幅度
 
         # Shrink heart pictures
         self.heart_full = pygame.transform.scale(HEART_FULL, (30, 30))
@@ -112,6 +115,7 @@ class Dinosaur:
     def handle_collision(self):
         global is_music_playing
         if not self.is_invincible:
+            self.shake_timer = self.shake_duration  # 开始抖动
             if self.life_count > 1:
                 if is_music_playing:
                     COLLISION_SOUND.play()
@@ -126,10 +130,15 @@ class Dinosaur:
     def draw_hearts(self, SCREEN):
         # Display hearts pictures
         for i in range(3):
+            x = 30 + i * 40
+            y = 30
+            if self.shake_timer > 0:
+                x += random.randint(-self.shake_amplitude, self.shake_amplitude)
+                y += random.randint(-self.shake_amplitude, self.shake_amplitude)
             if i < self.life_count:
-                SCREEN.blit(self.heart_full, (30 + i * 40, 30))
+                SCREEN.blit(self.heart_full, (x, y))
             else:
-                SCREEN.blit(self.heart_empty, (30 + i * 40, 30))
+                SCREEN.blit(self.heart_empty, (x, y))
 
     def start_death_animation(self):
         self.image = self.dead_img

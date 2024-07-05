@@ -280,6 +280,9 @@ def main():
         player.draw(SCREEN)
         player.draw_hearts(SCREEN)  # Display hearts pictures
 
+        if player.shake_timer > 0:
+            player.shake_timer -= 1
+
         if len(obstacles) == 0 and not is_dead_animation:
             obstacles.append(create_obstacle())
 
