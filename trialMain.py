@@ -64,7 +64,8 @@ def pause_screen(player, obstacles, clouds, background, projectiles):
                     paused = False
                 elif event.key == pygame.K_q:  # Quit game if 'Q' is pressed
                     return_to_menu = True
-                    pygame.mixer.music.unpause()
+                    if is_music_playing:
+                        pygame.mixer.music.unpause()
                     paused = False
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if sound_icon_rect.collidepoint(event.pos):
