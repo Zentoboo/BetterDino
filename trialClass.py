@@ -212,6 +212,9 @@ class Pterodactylus(Obstacle):
         self.index = 0
 
     def draw(self, SCREEN):
+        if paused:  # Skip updating animation if paused
+            SCREEN.blit(self.image[self.index // 5], self.rect)
+            return
         if self.index >= 9:
             self.index = 0
         SCREEN.blit(self.image[self.index // 5], self.rect)
@@ -268,9 +271,14 @@ class Projectile(object):
         self.x_velocity = math.cos(self.angle) * self.projectile_speed
         self.y_velocity = math.sin(self.angle) * self.projectile_speed
     def update(self):
+        if paused:  # Skip updating position if paused
+            return
         self.rect.x += self.x_velocity
         self.rect.y += self.y_velocity
     def draw(self,SCREEN):
+        if paused:  # Skip updating animation if paused
+            SCREEN.blit(self.image[self.index // 5], self.rect)
+            return
         if self.index >= 19:
             self.index = 0
         SCREEN.blit(self.image[self.index // 5], self.rect)

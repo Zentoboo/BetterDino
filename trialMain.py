@@ -266,7 +266,7 @@ def main():
         userInput = pygame.key.get_pressed()
         keyInput = pygame.mouse.get_pressed()
 
-        if not is_dead_animation:
+        if not is_dead_animation and not paused:
             player.update(userInput, keyInput)
         else:
             player.update_death_animation()
@@ -279,7 +279,8 @@ def main():
 
         projectiles_to_remove = []
         for projectile in projectiles:
-            projectile.update()
+            if not paused:
+                projectile.update()
             projectile.draw(SCREEN)
             # Check if projectile collide with obstacle
             for obstacle in obstacles:
@@ -300,7 +301,7 @@ def main():
         obstacles_to_remove = []
         for obstacle in obstacles:
             obstacle.draw(SCREEN)
-            if not is_dead_animation:
+            if not is_dead_animation and not paused:
                 if obstacle.update(fg_game_speed) or (isinstance(obstacle, Tumbleweed) and obstacle.should_remove):
                     obstacles_to_remove.append(obstacle)
             if player.dino_rect.colliderect(obstacle.rect):
@@ -323,7 +324,7 @@ def main():
 
         for cloud in clouds:
             cloud.draw(SCREEN)
-            if not is_dead_animation:  # Pause cloud updates
+            if not is_dead_animation and not paused:  # Pause cloud updates
                 cloud.update()
 
         score()
