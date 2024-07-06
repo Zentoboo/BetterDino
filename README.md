@@ -11,6 +11,8 @@
 - [x] Add the ability of using W and S equivalent to Up key and Down key respectively.
 - [x] Add lives for the dino
 - [x] Set death animation
+- [x] Add sound effects
+- [x] Make game more responsive to user's action with sound or other effects.
 ## Reference:
 - https://youtube.com/playlist?list=PL30AETbxgR-fAbwiuU1vDl3owNUPUuVrz&si=_g38aaVXZGXDdXaI
 - https://www.youtube.com/watch?v=tJiKYMQJnYg

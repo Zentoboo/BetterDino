@@ -4,16 +4,19 @@ import random
 from varConstants import *
 from entities import *
 
-def drawEntity(player, obstacles, clouds, background, projectiles):
+def drawEntity(player, obstacles, clouds, background, projectiles,paused):
     # Draw the game background
     SCREEN.fill((255, 255, 255))
     background()
     for cloud in clouds:
         cloud.draw(SCREEN)
     for obstacle in obstacles:
-        obstacle.draw(SCREEN)
+        if isinstance(obstacle, Tumbleweed) or isinstance(obstacle, Pterodactylus):
+            obstacle.draw(SCREEN,True)
+        else:
+            obstacle.draw(SCREEN)
     for projectile in projectiles:
-        projectile.draw(SCREEN)
+        projectile.draw(SCREEN,True)
     player.draw(SCREEN)
     player.draw_hearts(SCREEN)
 
@@ -22,7 +25,7 @@ def countdown(player, obstacles, clouds, background, projectiles):
     greyColor = (80, 80, 80)
     count = 3
     while count > 0:
-        drawEntity(player, obstacles, clouds, background, projectiles)
+        drawEntity(player, obstacles, clouds, background, projectiles,True)
         
         # Draw the countdown
         count_text = large_font.render(str(count), True, greyColor)
@@ -81,7 +84,7 @@ def pause_screen(player, obstacles, clouds, background, projectiles):
                     else:
                         pygame.mixer.music.pause()
 
-        drawEntity(player, obstacles, clouds, background, projectiles)
+        drawEntity(player, obstacles, clouds, background, projectiles,True)
 
         pause_text = FONT.render("PAUSED", True, (0, 0, 0))
         resume_text = FONT.render("Press 'R' to Resume", True, (0, 0, 0))
@@ -249,6 +252,20 @@ def main():
         return Projectile(offset_dino_pos, pos, fg_game_speed, PROJECTILE)
 
     sound_icon_rect = sound_on.get_rect(center=(880, 40))
+    
+    def draw_and_update_special_obstacles(obstacle, SCREEN, paused, fg_game_speed, obstacles_to_remove, is_dead_animation):
+        obstacle.draw(SCREEN, paused)
+        if not is_dead_animation and not paused:
+            if obstacle.update(fg_game_speed, paused):
+                obstacles_to_remove.append(obstacle)
+        return is_dead_animation
+
+    def draw_and_update_regular_obstacles(obstacle, SCREEN, fg_game_speed, obstacles_to_remove, is_dead_animation):
+        obstacle.draw(SCREEN)
+        if not is_dead_animation and not paused:
+            if obstacle.update(fg_game_speed):
+                obstacles_to_remove.append(obstacle)
+        return is_dead_animation
 
     while run:
         for event in pygame.event.get():
@@ -297,8 +314,8 @@ def main():
         projectiles_to_remove = []
         for projectile in projectiles:
             if not paused:
-                projectile.update()
-            projectile.draw(SCREEN)
+                projectile.update(paused)
+            projectile.draw(SCREEN,paused)
             # Check if projectile collide with obstacle
             for obstacle in obstacles:
                 if isinstance(obstacle, Tumbleweed) and projectile.rect.colliderect(obstacle.rect):
@@ -317,10 +334,11 @@ def main():
 
         obstacles_to_remove = []
         for obstacle in obstacles:
-            obstacle.draw(SCREEN)
-            if not is_dead_animation and not paused:
-                if obstacle.update(fg_game_speed) or (isinstance(obstacle, Tumbleweed) and obstacle.should_remove):
-                    obstacles_to_remove.append(obstacle)
+            if isinstance(obstacle, Tumbleweed) or isinstance(obstacle, Pterodactylus):
+                is_dead_animation = draw_and_update_special_obstacles(obstacle, SCREEN, paused, fg_game_speed, obstacles_to_remove, is_dead_animation)
+            else:
+                is_dead_animation = draw_and_update_regular_obstacles(obstacle, SCREEN, fg_game_speed, obstacles_to_remove, is_dead_animation)
+            
             if player.dino_rect.colliderect(obstacle.rect):
                 if player.handle_collision():
                     pygame.mixer.music.stop()  # Stop game music on death

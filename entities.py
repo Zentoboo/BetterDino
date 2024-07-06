@@ -218,8 +218,16 @@ class Pterodactylus(Obstacle):
         self.rect.y = 270
         self.index = 0
 
-    def draw(self, SCREEN):
-        if paused:  # Skip updating animation if paused
+    def update(self,obstacle_speed,paused):
+        if paused:
+            return False
+        self.rect.x -= obstacle_speed
+        if self.rect.x < -self.rect.width:
+            return True  # Signal that this obstacle should be removed
+        return False
+
+    def draw(self,SCREEN,paused):
+        if paused:
             SCREEN.blit(self.image[self.index // 5], self.rect)
             return
         if self.index >= 9:
@@ -238,23 +246,31 @@ class Tumbleweed(Obstacle):
         self.gravity = 0.5  # Gravity effect
         self.should_remove = False  # New flag to indicate if the tumbleweed should be removed
 
-    def update(self,obstacle_speed):
-        self.rect.x -= obstacle_speed
+    def update(self,obstacle_speed,paused):
+        if not paused:
+            self.rect.x -= obstacle_speed
 
-        # Bounce effect
-        self.rect.y += self.y_velocity
-        self.y_velocity += self.gravity
+            # Bounce effect
+            self.rect.y += self.y_velocity
+            self.y_velocity += self.gravity
 
-        # Check if the tumbleweed hits the ground and make it bounce
-        if self.rect.y >= 320:
-            self.rect.y = 320
-            self.y_velocity = -abs(self.y_velocity) * 0.8  # Reduce velocity for bouncing effect
+            # Check if the tumbleweed hits the ground and make it bounce
+            if self.rect.y >= 320:
+                self.rect.y = 320
+                self.y_velocity = -abs(self.y_velocity) * 0.8  # Reduce velocity for bouncing effect
 
-        if self.rect.x < -self.rect.width:
-            self.should_remove = True  # Set flag to True instead of modifying the obstacles list
+            if self.rect.x < -self.rect.width:
+                self.should_remove = True  # Set flag to True instead of modifying the obstacles list
 
-        return self.should_remove  # Return the flag
-
+            return self.should_remove  # Return the flag
+    def draw(self, SCREEN,paused):
+        if paused:  # Skip updating animation if paused
+            SCREEN.blit(self.image[self.index // 5], self.rect)
+            return
+        if self.index >= 19:
+            self.index = 0
+        SCREEN.blit(self.image[self.index // 5], self.rect)
+        self.index += 1
 
 def findAngle(sprite_pos, mouse_pos):
     dx = mouse_pos[0] - sprite_pos[0]
@@ -277,12 +293,11 @@ class Projectile(object):
         self.rect.y = sprite_pos[1]
         self.x_velocity = math.cos(self.angle) * self.projectile_speed
         self.y_velocity = math.sin(self.angle) * self.projectile_speed
-    def update(self):
-        if paused:  # Skip updating position if paused
-            return
-        self.rect.x += self.x_velocity
-        self.rect.y += self.y_velocity
-    def draw(self,SCREEN):
+    def update(self,paused):
+        if not paused:
+            self.rect.x += self.x_velocity
+            self.rect.y += self.y_velocity
+    def draw(self,SCREEN,paused):
         if paused:  # Skip updating animation if paused
             SCREEN.blit(self.image[self.index // 5], self.rect)
             return
