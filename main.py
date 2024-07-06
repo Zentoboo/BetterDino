@@ -1,6 +1,5 @@
 import sys
 import pygame
-import os
 import random
 from varConstants import *
 from entities import *

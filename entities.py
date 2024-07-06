@@ -1,6 +1,4 @@
-import sys
 import pygame
-import os
 import random
 import math
 from varConstants import *

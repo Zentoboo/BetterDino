@@ -1,7 +1,5 @@
-import sys
 import pygame
 import os
-import random
 
 pygame.init()
 pygame.mixer.init()
