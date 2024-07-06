@@ -4,19 +4,19 @@ import random
 from varConstants import *
 from entities import *
 
-def drawEntity(player, obstacles, clouds, background, projectiles,paused):
+def drawPausedEntity(player, obstacles, clouds, background, projectiles):
     # Draw the game background
     SCREEN.fill((255, 255, 255))
-    background()
+    background(False)  # Do not move the background
     for cloud in clouds:
         cloud.draw(SCREEN)
     for obstacle in obstacles:
         if isinstance(obstacle, Tumbleweed) or isinstance(obstacle, Pterodactylus):
-            obstacle.draw(SCREEN,True)
+            obstacle.draw(SCREEN, True)
         else:
             obstacle.draw(SCREEN)
     for projectile in projectiles:
-        projectile.draw(SCREEN,True)
+        projectile.draw(SCREEN, True)
     player.draw(SCREEN)
     player.draw_hearts(SCREEN)
 
@@ -25,8 +25,8 @@ def countdown(player, obstacles, clouds, background, projectiles):
     greyColor = (80, 80, 80)
     count = 3
     while count > 0:
-        drawEntity(player, obstacles, clouds, background, projectiles,True)
-        
+        drawPausedEntity(player, obstacles, clouds, background, projectiles)
+
         # Draw the countdown
         count_text = large_font.render(str(count), True, greyColor)
         count_rect = count_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 100))
@@ -35,11 +35,11 @@ def countdown(player, obstacles, clouds, background, projectiles):
 
         if is_music_playing:
             COUNT_SOUND.play()
-        
+
         pygame.display.update()
         pygame.time.delay(1000)
         count -= 1
-    
+
     # "GO!" text
     go_text = large_font.render("GO!", True, greyColor)
     if is_music_playing:
@@ -67,7 +67,7 @@ def pause_screen(player, obstacles, clouds, background, projectiles):
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_r:  # Resume game if 'W' is pressed
+                if event.key == pygame.K_r:  # Resume game if 'R' is pressed
                     paused = False
                 elif event.key == pygame.K_q:  # Quit game if 'Q' is pressed
                     if is_music_playing:
@@ -84,7 +84,7 @@ def pause_screen(player, obstacles, clouds, background, projectiles):
                     else:
                         pygame.mixer.music.pause()
 
-        drawEntity(player, obstacles, clouds, background, projectiles,True)
+        drawPausedEntity(player, obstacles, clouds, background, projectiles)
 
         pause_text = FONT.render("PAUSED", True, (0, 0, 0))
         resume_text = FONT.render("Press 'R' to Resume", True, (0, 0, 0))
@@ -218,19 +218,16 @@ def main():
         game_speed_text_rect.center = (300, 40)
         SCREEN.blit(game_speed_text, game_speed_text_rect)
 
-    def background():
+    def background(move=True):
         global x_pos_bg, y_pos_bg
-        if not is_dead_animation and not paused:
-            image_width = DESERT_SAND.get_width()
-            SCREEN.blit(DESERT_SAND, (x_pos_bg, y_pos_bg))
-            SCREEN.blit(DESERT_SAND, (image_width + x_pos_bg, y_pos_bg))
+        image_width = DESERT_SAND.get_width()
+        SCREEN.blit(DESERT_SAND, (x_pos_bg, y_pos_bg))
+        SCREEN.blit(DESERT_SAND, (image_width + x_pos_bg, y_pos_bg))
+        if move:
             if x_pos_bg <= -image_width:
                 SCREEN.blit(DESERT_SAND, (image_width + x_pos_bg, y_pos_bg))
                 x_pos_bg = 0
             x_pos_bg -= fg_game_speed
-        else:
-            SCREEN.blit(DESERT_SAND, (x_pos_bg, y_pos_bg))
-            SCREEN.blit(DESERT_SAND, (DESERT_SAND.get_width() + x_pos_bg, y_pos_bg))
 
     def create_obstacle():
         obstacle_type = random.randint(0, 3)
