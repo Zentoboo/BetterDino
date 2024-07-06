@@ -3,7 +3,7 @@ import pygame
 import os
 import random
 import math
-from trialConstant import *
+from varConstants import *
 
 class Dinosaur:
     X_POS = 80

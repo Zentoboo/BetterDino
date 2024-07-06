@@ -2,8 +2,8 @@ import sys
 import pygame
 import os
 import random
-from trialConstant import *
-from trialClass import *
+from varConstants import *
+from entities import *
 
 def drawEntity(player, obstacles, clouds, background, projectiles):
     # Draw the game background
