@@ -42,7 +42,6 @@ class Dinosaur:
         return self.dino_rect.center
     
     def update(self, userInput, keyInput):
-        global is_music_playing
         if self.dinoDuck:
             self.duck()
         if self.dinoRun:
@@ -59,8 +58,6 @@ class Dinosaur:
             self.dinoDuck = False
             self.dinoRun = False
             self.dinoJump = True
-            if is_music_playing:
-                JUMP_SOUND.play()
         elif (userInput[pygame.K_DOWN] or userInput[pygame.K_s]) and not self.dinoJump:
             self.dinoDuck = True
             self.dinoRun = False
@@ -120,12 +117,9 @@ class Dinosaur:
             SCREEN.blit(self.image, (self.dino_rect.x, self.dino_rect.y))
         
     def handle_collision(self):
-        global is_music_playing
         if not self.is_invincible:
             self.shake_timer = self.shake_duration  # Starting to shake.
             if self.life_count > 1:
-                if is_music_playing:
-                    COLLISION_SOUND.play()
                 pygame.time.delay(300)
             self.life_count -= 1  # Decrease in life value
             self.is_invincible = True  # Enable invincibility

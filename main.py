@@ -167,15 +167,14 @@ def menu():
                 pos = pygame.mouse.get_pos()
                 if sound_icon_rect.collidepoint(pos):
                     if is_music_playing:
+                        SCREEN.blit(sound_on, sound_icon_rect)
                         pygame.mixer.music.stop()
                     else:
+                        SCREEN.blit(sound_off, sound_icon_rect)
+                        pygame.mixer.music.load(MENU_BG)
                         pygame.mixer.music.set_volume(0.5)
                         pygame.mixer.music.play(-1)
                     is_music_playing = not is_music_playing
-                    if is_music_playing:
-                        SCREEN.blit(sound_on, sound_icon_rect)
-                    else:
-                        SCREEN.blit(sound_off, sound_icon_rect)
         
         clock.tick(10)  # Control the animation speed
         pygame.display.update()
@@ -190,6 +189,7 @@ def main():
     clouds = [Cloud()]
     is_dead_animation = False
     fg_game_speed = INITIAL_GAME_SPEED  # Reset game speed at the start of each game
+    collision_detected = False
 
     # Stop menu background music if playing
     pygame.mixer.music.stop()
@@ -279,11 +279,16 @@ def main():
                     if return_to_menu:
                         run = False
                         break
+                if event.key == pygame.K_UP or event.key == pygame.K_w:
+                    if not is_dead_animation and not player.dinoJump and is_music_playing:
+                        JUMP_SOUND.play()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if sound_icon_rect.collidepoint(event.pos):
                     is_music_playing = not is_music_playing
                     if is_music_playing:
-                        pygame.mixer.music.unpause()
+                        pygame.mixer.music.load(PLAY_BG)
+                        pygame.mixer.music.set_volume(0.3)
+                        pygame.mixer.music.play(-1)  # Loop indefinitely
                     else:
                         pygame.mixer.music.pause()
                 else:
@@ -339,12 +344,19 @@ def main():
                 is_dead_animation = draw_and_update_regular_obstacles(obstacle, SCREEN, fg_game_speed, obstacles_to_remove, is_dead_animation)
             
             if player.dino_rect.colliderect(obstacle.rect):
+                # Checks if the collision has been detected and if the remaining life value is greater than 1
+                if not collision_detected and player.life_count > 1:
+                    if is_music_playing:
+                        COLLISION_SOUND.play()
+                    collision_detected = True  # Set the flag to indicate that a collision has been detected
                 if player.handle_collision():
                     pygame.mixer.music.stop()  # Stop game music on death
                     if is_music_playing:
                         DIE_SOUND.play()
                     is_dead_animation = True
                     player.start_death_animation()
+            else:
+                collision_detected = False  # Reset flag for no collision
 
         # Remove obstacles that are off-screen
         for obstacle in obstacles_to_remove:
