@@ -4,43 +4,44 @@ import random
 from varConstants import *
 from entities import *
 
+# Function to draw the game entities while paused
 def drawPausedEntity(player, obstacles, clouds, background, projectiles):
-    # Draw the game background
-    SCREEN.fill((255, 255, 255))
+    SCREEN.fill((255, 255, 255))  # Fill screen with white
     background(False)  # Do not move the background
     for cloud in clouds:
-        cloud.draw(SCREEN)
+        cloud.draw(SCREEN)  # Draw each cloud
     for obstacle in obstacles:
         if isinstance(obstacle, Tumbleweed) or isinstance(obstacle, Pterodactylus):
-            obstacle.draw(SCREEN, True)
+            obstacle.draw(SCREEN, True)  # Draw with special flag
         else:
             obstacle.draw(SCREEN)
     for projectile in projectiles:
-        projectile.draw(SCREEN, True)
-    player.draw(SCREEN)
-    player.draw_hearts(SCREEN)
+        projectile.draw(SCREEN, True)  # Draw projectiles with special flag
+    player.draw(SCREEN)  # Draw the player
+    player.draw_hearts(SCREEN)  # Draw player's hearts
 
+# Function to display a countdown before resuming the game
 def countdown(player, obstacles, clouds, background, projectiles):
     large_font = pygame.font.Font(FONT_PATH, 75)
     greyColor = (80, 80, 80)
-    count = 3
+    count = 3  # Start countdown from 3
     while count > 0:
         drawPausedEntity(player, obstacles, clouds, background, projectiles)
 
-        # Draw the countdown
+        # Render and display the countdown number
         count_text = large_font.render(str(count), True, greyColor)
         count_rect = count_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 100))
         pygame.draw.rect(SCREEN, (255, 255, 255), count_rect)
         SCREEN.blit(count_text, count_rect)
 
         if is_music_playing:
-            COUNT_SOUND.play()
+            COUNT_SOUND.play()  # Play countdown sound
 
         pygame.display.update()
-        pygame.time.delay(1000)
-        count -= 1
+        pygame.time.delay(1000)  # Delay for 1 second
+        count -= 1  # Decrease count
 
-    # "GO!" text
+    # Display "GO!" text
     go_text = large_font.render("GO!", True, greyColor)
     if is_music_playing:
         GO_SOUND.play()
@@ -48,10 +49,11 @@ def countdown(player, obstacles, clouds, background, projectiles):
     pygame.draw.rect(SCREEN, (255, 255, 255), go_rect)
     SCREEN.blit(go_text, go_rect)
     pygame.display.update()
-    pygame.time.delay(500)
+    pygame.time.delay(500)  # Delay for 0.5 seconds
     if is_music_playing:
         pygame.mixer.music.unpause()
 
+# Function to display the pause screen
 def pause_screen(player, obstacles, clouds, background, projectiles):
     global paused, return_to_menu, is_music_playing
     paused = True
@@ -61,7 +63,7 @@ def pause_screen(player, obstacles, clouds, background, projectiles):
 
     while paused:
         if is_music_playing:
-            pygame.mixer.music.pause()
+            pygame.mixer.music.pause()  # Pause background music
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -86,6 +88,7 @@ def pause_screen(player, obstacles, clouds, background, projectiles):
 
         drawPausedEntity(player, obstacles, clouds, background, projectiles)
 
+        # Display pause screen texts
         pause_text = FONT.render("PAUSED", True, (0, 0, 0))
         resume_text = FONT.render("Press 'R' to Resume", True, (0, 0, 0))
         quit_text = FONT.render("Press 'Q' to Quit", True, (0, 0, 0))
@@ -94,6 +97,7 @@ def pause_screen(player, obstacles, clouds, background, projectiles):
         SCREEN.blit(resume_text, resume_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 170)))
         SCREEN.blit(quit_text, quit_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 200)))
 
+        # Display sound icon based on current state
         if is_music_playing:
             SCREEN.blit(sound_on, sound_icon_rect)
         else:
@@ -106,6 +110,7 @@ def pause_screen(player, obstacles, clouds, background, projectiles):
     if not return_to_menu:
         countdown(player, obstacles, clouds, background, projectiles)
 
+# Function to display the main menu
 def menu():
     global SCREEN, FONT, high_score, current_score, death_count, is_music_playing
     isQuit = False
@@ -121,8 +126,7 @@ def menu():
         pygame.mixer.music.play(-1)  # Loop indefinitely
 
     while not isQuit:
-        # White canvas
-        SCREEN.fill((255, 255, 255))
+        SCREEN.fill((255, 255, 255))  # White canvas
 
         # Animate the dino
         SCREEN.blit(MENU_DINO[dino_index], dino_rect)
@@ -179,6 +183,7 @@ def menu():
         clock.tick(10)  # Control the animation speed
         pygame.display.update()
 
+# Main game loop
 def main():
     global points, obstacles, x_pos_bg, y_pos_bg, fg_game_speed, bg_game_speed, death_count, high_score, current_score, return_to_menu, is_music_playing
     return_to_menu = False
@@ -191,14 +196,14 @@ def main():
     fg_game_speed = INITIAL_GAME_SPEED  # Reset game speed at the start of each game
     collision_detected = False
 
-    # Stop menu background music if playing
-    pygame.mixer.music.stop()
+    pygame.mixer.music.stop()  # Stop menu background music if playing
 
     if is_music_playing:
         pygame.mixer.music.load(PLAY_BG)
         pygame.mixer.music.set_volume(0.3)
         pygame.mixer.music.play(-1)  # Loop indefinitely
 
+    # Function to update and display the score
     def score():
         global points, fg_game_speed
         if not is_dead_animation:
@@ -218,19 +223,21 @@ def main():
         game_speed_text_rect.center = (300, 40)
         SCREEN.blit(game_speed_text, game_speed_text_rect)
 
+    # Function to draw and move the background
     def background(move=True):
         global x_pos_bg, y_pos_bg
         image_width = DESERT_SAND.get_width()
         SCREEN.blit(DESERT_SAND, (x_pos_bg, y_pos_bg))
         SCREEN.blit(DESERT_SAND, (image_width + x_pos_bg, y_pos_bg))
         if is_dead_animation:
-            move=False
+            move = False
         if move:
             if x_pos_bg <= -image_width:
                 SCREEN.blit(DESERT_SAND, (image_width + x_pos_bg, y_pos_bg))
                 x_pos_bg = 0
             x_pos_bg -= fg_game_speed
 
+    # Function to create a random obstacle
     def create_obstacle():
         obstacle_type = random.randint(0, 3)
         if obstacle_type == 0:
@@ -242,10 +249,11 @@ def main():
         elif obstacle_type == 3:
             return Tumbleweed(TUMBLEWEED)
     
+    # Function to create a projectile
     def create_projectile():
         pos = pygame.mouse.get_pos()
         dino_pos = player.getPosition()
-        offset_dino_pos = (dino_pos[0] + 20, dino_pos[1] - 20)  # offset dino position
+        offset_dino_pos = (dino_pos[0] + 20, dino_pos[1] - 20)  # Offset dino position
         if is_music_playing:
             SHOOT_SOUND.play()
         return Projectile(offset_dino_pos, pos, fg_game_speed, PROJECTILE)
@@ -305,7 +313,7 @@ def main():
         for projectile in projectiles:
             if not paused:
                 projectile.update(paused)
-            projectile.draw(SCREEN,paused)
+            projectile.draw(SCREEN, paused)
             # Check if projectile collide with obstacle
             for obstacle in obstacles:
                 if isinstance(obstacle, Tumbleweed) and projectile.rect.colliderect(obstacle.rect):
