@@ -252,7 +252,7 @@ def main():
 
     sound_icon_rect = sound_on.get_rect(center=(880, 40))
     
-    def draw_and_update_special_obstacles(obstacle, SCREEN, paused, fg_game_speed, obstacles_to_remove, is_dead_animation):
+    def draw_and_update_animating_obstacles(obstacle, SCREEN, paused, fg_game_speed, obstacles_to_remove, is_dead_animation):
         obstacle.draw(SCREEN, paused)
         if not is_dead_animation and not paused:
             if obstacle.update(fg_game_speed, paused):
@@ -339,7 +339,7 @@ def main():
         obstacles_to_remove = []
         for obstacle in obstacles:
             if isinstance(obstacle, Tumbleweed) or isinstance(obstacle, Pterodactylus):
-                is_dead_animation = draw_and_update_special_obstacles(obstacle, SCREEN, paused, fg_game_speed, obstacles_to_remove, is_dead_animation)
+                is_dead_animation = draw_and_update_animating_obstacles(obstacle, SCREEN, paused, fg_game_speed, obstacles_to_remove, is_dead_animation)
             else:
                 is_dead_animation = draw_and_update_regular_obstacles(obstacle, SCREEN, fg_game_speed, obstacles_to_remove, is_dead_animation)
             
