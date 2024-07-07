@@ -252,20 +252,6 @@ def main():
 
     sound_icon_rect = sound_on.get_rect(center=(880, 40))
     
-    def draw_and_update_animating_obstacles(obstacle, SCREEN, paused, fg_game_speed, obstacles_to_remove, is_dead_animation):
-        obstacle.draw(SCREEN, paused)
-        if not is_dead_animation and not paused:
-            if obstacle.update(fg_game_speed, paused):
-                obstacles_to_remove.append(obstacle)
-        return is_dead_animation
-
-    def draw_and_update_regular_obstacles(obstacle, SCREEN, fg_game_speed, obstacles_to_remove, is_dead_animation):
-        obstacle.draw(SCREEN)
-        if not is_dead_animation and not paused:
-            if obstacle.update(fg_game_speed):
-                obstacles_to_remove.append(obstacle)
-        return is_dead_animation
-
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -339,10 +325,16 @@ def main():
         obstacles_to_remove = []
         for obstacle in obstacles:
             if isinstance(obstacle, Tumbleweed) or isinstance(obstacle, Pterodactylus):
-                is_dead_animation = draw_and_update_animating_obstacles(obstacle, SCREEN, paused, fg_game_speed, obstacles_to_remove, is_dead_animation)
+                obstacle.draw(SCREEN, paused)
+                if not is_dead_animation and not paused:
+                    if obstacle.update(fg_game_speed, paused):
+                        obstacles_to_remove.append(obstacle)
             else:
-                is_dead_animation = draw_and_update_regular_obstacles(obstacle, SCREEN, fg_game_speed, obstacles_to_remove, is_dead_animation)
-            
+                obstacle.draw(SCREEN)
+                if not is_dead_animation and not paused:
+                    if obstacle.update(fg_game_speed):
+                        obstacles_to_remove.append(obstacle)
+
             if player.dino_rect.colliderect(obstacle.rect):
                 # Checks if the collision has been detected and if the remaining life value is greater than 1
                 if not collision_detected and player.life_count > 1:
