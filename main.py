@@ -223,6 +223,8 @@ def main():
         image_width = DESERT_SAND.get_width()
         SCREEN.blit(DESERT_SAND, (x_pos_bg, y_pos_bg))
         SCREEN.blit(DESERT_SAND, (image_width + x_pos_bg, y_pos_bg))
+        if is_dead_animation:
+            move=False
         if move:
             if x_pos_bg <= -image_width:
                 SCREEN.blit(DESERT_SAND, (image_width + x_pos_bg, y_pos_bg))
