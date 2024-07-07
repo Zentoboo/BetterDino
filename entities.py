@@ -19,6 +19,8 @@ class Dinosaur:
         self.dinoRun = True
         self.dinoJump = False
 
+        self.aim = False
+        self.prev_a_pressed = False
         self.step_index = 0
         self.jump_vel = self.JUMP_VEL
         self.image = self.run_img[0]
@@ -47,6 +49,8 @@ class Dinosaur:
             self.run()
         if self.dinoJump:
             self.jump(userInput)
+        if self.aim:
+            self.aimShot()
 
         if self.step_index >= 10:
             self.step_index = 0
@@ -65,11 +69,20 @@ class Dinosaur:
             self.dinoDuck = False
             self.dinoRun = True
             self.dinoJump = False
+        if userInput[pygame.K_a] and not self.prev_a_pressed:
+            self.aim = not self.aim
+        
+        self.prev_a_pressed = userInput[pygame.K_a]
 
         # Set the invincibility time to 2 seconds
         if self.is_invincible and (pygame.time.get_ticks() - self.invincible_start_time) > 2000:
             self.is_invincible = False
 
+    def aimShot(self):
+        # draw line
+        mouse_pos = pygame.mouse.get_pos()
+        offset_dino_pos = (self.dino_rect.center[0]+20,self.dino_rect.center[1]-20) # offset dino position
+        pygame.draw.line(SCREEN,(255,0,0),offset_dino_pos,mouse_pos,2)
     def duck(self):
         self.image = self.duck_img[self.step_index // 5]
         self.dino_rect = self.image.get_rect()
@@ -105,10 +118,6 @@ class Dinosaur:
                 SCREEN.blit(self.image, (self.dino_rect.x, self.dino_rect.y))
         else:
             SCREEN.blit(self.image, (self.dino_rect.x, self.dino_rect.y))
-        # draw line
-        mouse_pos = pygame.mouse.get_pos()
-        offset_dino_pos = (self.dino_rect.center[0]+20,self.dino_rect.center[1]-20) # offset dino position
-        pygame.draw.line(SCREEN,(255,0,0),offset_dino_pos,mouse_pos,2)
         
     def handle_collision(self):
         global is_music_playing
