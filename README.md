@@ -14,6 +14,7 @@
 - The dino has 3 hearts.
     - When a dino gets hit it, it reduces the heart of the dino by 1 and there is a small time frame where the dino is immune from getting hit.
     - Once the dino is hit the 3rd time, it has no hearts left so the dino is considered dead and its game over.
+- The game increases in speed determined by game speed which increments by 1 for every determined level length (example: each time points modulus 100 points is passed, the game speed increases by 1)
 ### Player actions:
 - NOTE: in this version of the game players can perform actions with no cooldown.
 1. Press `W` or `Up` key to jump (hold jump to reach its maximum; release `W` to go down faster)
@@ -23,7 +24,8 @@
 4. Press `Esc` to pause the game.
     - Press `R` to resume the game instance; There will be a 3 second countdown after the `R` key is pressed.
     - Press `Q` to quit the game instance and go to menu.
-5. On default the dino runs standing tall on the ground.
+5. Press `A` key to toggle aim helper which is a red line that is shown from the dino to your mouse cursor.
+6. On default the dino runs standing tall on the ground.
 ### Obstacles:
 - NOTE: in this version of the game obstacles only appear 1 at a time; in the future obstacles should be have more variety such as a preset of attacks.
 - These obstacles include: small cactus, large cactus, pterodactylus, and tumbleweed.
